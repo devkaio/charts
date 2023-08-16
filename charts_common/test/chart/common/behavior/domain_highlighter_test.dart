@@ -21,15 +21,14 @@ import 'package:charts_common/src/chart/common/processed_series.dart';
 import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
 import 'package:charts_common/src/common/material_palette.dart';
 import 'package:charts_common/src/data/series.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChart extends Mock implements BaseChart {
   LifecycleListener lastListener;
 
   @override
-  LifecycleListener addLifecycleListener(LifecycleListener listener) =>
-      lastListener = listener;
+  LifecycleListener addLifecycleListener(LifecycleListener listener) => lastListener = listener;
 
   @override
   bool removeLifecycleListener(LifecycleListener listener) {
@@ -43,8 +42,7 @@ class MockSelectionModel extends Mock implements MutableSelectionModel {
   SelectionModelListener lastListener;
 
   @override
-  void addSelectionChangedListener(SelectionModelListener listener) =>
-      lastListener = listener;
+  void addSelectionChangedListener(SelectionModelListener listener) => lastListener = listener;
 
   @override
   void removeSelectionChangedListener(SelectionModelListener listener) {
@@ -69,12 +67,10 @@ void main() {
 
   void _setupSelection(List<MyRow> selected) {
     for (var i = 0; i < _series1.data.length; i++) {
-      when(_selectionModel.isDatumSelected(_series1, i))
-          .thenReturn(selected.contains(_series1.data[i]));
+      when(() => _selectionModel.isDatumSelected(_series1, i)).thenReturn(selected.contains(_series1.data[i]));
     }
     for (var i = 0; i < _series2.data.length; i++) {
-      when(_selectionModel.isDatumSelected(_series2, i))
-          .thenReturn(selected.contains(_series2.data[i]));
+      when(() => _selectionModel.isDatumSelected(_series2, i)).thenReturn(selected.contains(_series2.data[i]));
     }
   }
 
@@ -82,8 +78,7 @@ void main() {
     _chart = MockChart();
 
     _selectionModel = MockSelectionModel();
-    when(_chart.getSelectionModel(SelectionModelType.info))
-        .thenReturn(_selectionModel);
+    when(() => _chart.getSelectionModel(SelectionModelType.info)).thenReturn(_selectionModel);
 
     _series1 = MutableSeries(Series<MyRow, String>(
         id: 's1',
@@ -112,7 +107,7 @@ void main() {
 
       // Act
       _selectionModel.lastListener(_selectionModel);
-      verify(_chart.redraw(skipAnimation: true, skipLayout: true));
+      verify(() => _chart.redraw(skipAnimation: true, skipLayout: true));
       _chart.lastListener.onPostprocess(seriesList);
 
       // Verify
@@ -130,15 +125,14 @@ void main() {
     test('listens to other selection models', () {
       // Setup
       final behavior = DomainHighlighter(SelectionModelType.action);
-      when(_chart.getSelectionModel(SelectionModelType.action))
-          .thenReturn(_selectionModel);
+      when(() => _chart.getSelectionModel(SelectionModelType.action)).thenReturn(_selectionModel);
 
       // Act
       behavior.attachTo(_chart);
 
       // Verify
-      verify(_chart.getSelectionModel(SelectionModelType.action));
-      verifyNever(_chart.getSelectionModel(SelectionModelType.info));
+      verify(() => _chart.getSelectionModel(SelectionModelType.action));
+      verifyNever(() => _chart.getSelectionModel(SelectionModelType.info));
     });
 
     test('leaves everything alone with no selection', () {
@@ -150,7 +144,7 @@ void main() {
 
       // Act
       _selectionModel.lastListener(_selectionModel);
-      verify(_chart.redraw(skipAnimation: true, skipLayout: true));
+      verify(() => _chart.redraw(skipAnimation: true, skipLayout: true));
       _chart.lastListener.onPostprocess(seriesList);
 
       // Verify

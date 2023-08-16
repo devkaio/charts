@@ -19,7 +19,7 @@ import 'package:charts_common/src/chart/cartesian/axis/spec/date_time_axis_spec.
 import 'package:charts_common/src/chart/cartesian/axis/time/date_time_tick_formatter.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockContext extends Mock implements ChartContext {}
@@ -42,28 +42,24 @@ void main() {
   setUp(() {
     dateFormat = DateFormat.yMMMd();
     dateTimeTickSpec = BasicDateTimeTickFormatterSpec(testFormatter);
-    dateTimeTickSpecWithDateFormat =
-        BasicDateTimeTickFormatterSpec.fromDateFormat(dateFormat);
+    dateTimeTickSpecWithDateFormat = BasicDateTimeTickFormatterSpec.fromDateFormat(dateFormat);
 
     mockContext = MockContext();
   });
 
   group(BasicDateTimeTickFormatterSpec, () {
     test('formats ticks with custom formatter', () {
-      final DateTimeTickFormatter dateTimeTickFormatter =
-          dateTimeTickSpec.createTickFormatter(mockContext);
+      final DateTimeTickFormatter dateTimeTickFormatter = dateTimeTickSpec.createTickFormatter(mockContext);
 
       final ticks = [testDate1, testDate2, testDate3];
       final expectedLabels = [tickLabel, tickLabel, tickLabel];
-      final actualLabels =
-          dateTimeTickFormatter.format(ticks, null, stepSize: 10);
+      final actualLabels = dateTimeTickFormatter.format(ticks, null, stepSize: 10);
 
       expect(actualLabels, equals(expectedLabels));
     });
 
     test('formats ticks with provided DateFormat', () {
-      final DateTimeTickFormatter dateTimeTickFormatter =
-          dateTimeTickSpecWithDateFormat.createTickFormatter(mockContext);
+      final DateTimeTickFormatter dateTimeTickFormatter = dateTimeTickSpecWithDateFormat.createTickFormatter(mockContext);
 
       final ticks = [testDate1, testDate2, testDate3];
       final expectedLabels = [
@@ -71,28 +67,21 @@ void main() {
         'Nov 12, 1984',
         'Nov 13, 1984',
       ];
-      final actualLabels =
-          dateTimeTickFormatter.format(ticks, null, stepSize: 10);
+      final actualLabels = dateTimeTickFormatter.format(ticks, null, stepSize: 10);
 
       expect(actualLabels, equals(expectedLabels));
     });
 
     test('== override works correctly', () {
-      final otherDateTimeTickSpec =
-          BasicDateTimeTickFormatterSpec(testFormatter);
-      final otherDateTimeTickSpecWithDateFormat =
-          BasicDateTimeTickFormatterSpec.fromDateFormat(dateFormat);
+      final otherDateTimeTickSpec = BasicDateTimeTickFormatterSpec(testFormatter);
+      final otherDateTimeTickSpecWithDateFormat = BasicDateTimeTickFormatterSpec.fromDateFormat(dateFormat);
 
       expect(dateTimeTickSpec == otherDateTimeTickSpec, isTrue);
-      expect(
-          dateTimeTickSpecWithDateFormat == otherDateTimeTickSpecWithDateFormat,
-          isTrue);
+      expect(dateTimeTickSpecWithDateFormat == otherDateTimeTickSpecWithDateFormat, isTrue);
     });
 
     test('hash code works correctly', () {
-      final expectedHash = dateTimeTickSpec.formatter.hashCode *
-          37 *
-          dateTimeTickSpec.dateFormat.hashCode;
+      final expectedHash = dateTimeTickSpec.formatter.hashCode * 37 * dateTimeTickSpec.dateFormat.hashCode;
       final actualHash = dateTimeTickSpec.hashCode;
 
       expect(actualHash, equals(expectedHash));

@@ -1,5 +1,9 @@
 // @dart=2.9
 
+import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/base_tick_draw_strategy.dart';
+import 'package:charts_common/src/chart/cartesian/axis/linear/linear_scale.dart';
+import 'package:charts_common/src/chart/cartesian/axis/scale.dart';
+import 'package:charts_common/src/chart/cartesian/axis/spec/tick_spec.dart';
 // Copyright 2018 the Charts project authors. Please see the AUTHORS file
 // for details.
 //
@@ -16,15 +20,11 @@
 // limitations under the License.
 
 import 'package:charts_common/src/chart/cartesian/axis/static_tick_provider.dart';
-import 'package:charts_common/src/chart/cartesian/axis/linear/linear_scale.dart';
-import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/base_tick_draw_strategy.dart';
+import 'package:charts_common/src/chart/cartesian/axis/tick_formatter.dart';
+import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/common/graphics_factory.dart';
 import 'package:charts_common/src/common/text_element.dart';
-import 'package:charts_common/src/chart/common/chart_context.dart';
-import 'package:charts_common/src/chart/cartesian/axis/scale.dart';
-import 'package:charts_common/src/chart/cartesian/axis/spec/tick_spec.dart';
-import 'package:charts_common/src/chart/cartesian/axis/tick_formatter.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChartContext extends Mock implements ChartContext {}
@@ -39,8 +39,7 @@ class FakeNumericTickFormatter implements TickFormatter<num> {
   int calledTimes = 0;
 
   @override
-  List<String> format(List<num> tickValues, Map<num, String> cache,
-      {num stepSize}) {
+  List<String> format(List<num> tickValues, Map<num, String> cache, {num stepSize}) {
     calledTimes += 1;
 
     return tickValues.map((value) => value.toString()).toList();
@@ -63,7 +62,7 @@ void main() {
     drawStrategy = MockDrawStrategy<num>();
     scale = LinearScale()..range = ScaleOutputExtent(0, 300);
 
-    when(graphicsFactory.createTextElement(any)).thenReturn(MockTextElement());
+    when(() => graphicsFactory.createTextElement(any())).thenReturn(MockTextElement());
   });
 
   group('scale is extended with static tick values', () {

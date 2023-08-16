@@ -16,13 +16,14 @@
 // limitations under the License.
 
 import 'dart:math' show Rectangle;
+
+import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
+import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
+import 'package:charts_common/src/chart/common/behavior/a11y/domain_a11y_explore_behavior.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/chart/common/processed_series.dart';
-import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
-import 'package:charts_common/src/chart/common/behavior/a11y/domain_a11y_explore_behavior.dart';
-import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/data/series.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockContext extends Mock implements ChartContext {}
@@ -54,8 +55,7 @@ void main() {
   setUp(() {
     chart = FakeCartesianChart()..drawAreaBounds = Rectangle(50, 20, 150, 80);
 
-    behavior = DomainA11yExploreBehavior<String>(
-        vocalizationCallback: domainVocalization);
+    behavior = DomainA11yExploreBehavior<String>(vocalizationCallback: domainVocalization);
     behavior.attachTo(chart);
 
     domainAxis = MockAxis();
@@ -71,16 +71,16 @@ void main() {
   test('creates nodes for vertically drawn charts', () {
     // A LTR chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     chart.context = context;
     // Drawn vertically
     chart.vertical = true;
     // Set step size of 50, which should be the width of the bounding box
-    when(domainAxis.stepSize).thenReturn(50.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(75.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(125.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(175.0);
+    when(() => domainAxis.stepSize).thenReturn(50.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(75.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(125.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(175.0);
     // Call fire on post process for the behavior to get the series list.
     chart.callFireOnPostprocess([_series1]);
 
@@ -98,16 +98,16 @@ void main() {
   test('creates nodes for vertically drawn RTL charts', () {
     // A RTL chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(true);
-    when(context.isRtl).thenReturn(true);
+    when(() => context.chartContainerIsRtl).thenReturn(true);
+    when(() => context.isRtl).thenReturn(true);
     chart.context = context;
     // Drawn vertically
     chart.vertical = true;
     // Set step size of 50, which should be the width of the bounding box
-    when(domainAxis.stepSize).thenReturn(50.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(175.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(125.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(75.0);
+    when(() => domainAxis.stepSize).thenReturn(50.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(175.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(125.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(75.0);
     // Call fire on post process for the behavior to get the series list.
     chart.callFireOnPostprocess([_series1]);
 
@@ -125,16 +125,16 @@ void main() {
   test('creates nodes for horizontally drawn charts', () {
     // A LTR chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     chart.context = context;
     // Drawn horizontally
     chart.vertical = false;
     // Set step size of 20, which should be the height of the bounding box
-    when(domainAxis.stepSize).thenReturn(20.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(30.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(50.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(70.0);
+    when(() => domainAxis.stepSize).thenReturn(20.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(30.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(50.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(70.0);
     // Call fire on post process for the behavior to get the series list.
     chart.callFireOnPostprocess([_series1]);
 
@@ -152,16 +152,16 @@ void main() {
   test('creates nodes for horizontally drawn RTL charts', () {
     // A LTR chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(true);
-    when(context.isRtl).thenReturn(true);
+    when(() => context.chartContainerIsRtl).thenReturn(true);
+    when(() => context.isRtl).thenReturn(true);
     chart.context = context;
     // Drawn horizontally
     chart.vertical = false;
     // Set step size of 20, which should be the height of the bounding box
-    when(domainAxis.stepSize).thenReturn(20.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(30.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(50.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(70.0);
+    when(() => domainAxis.stepSize).thenReturn(20.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(30.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(50.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(70.0);
     // Call fire on post process for the behavior to get the series list.
     chart.callFireOnPostprocess([_series1]);
 
@@ -179,16 +179,16 @@ void main() {
   test('nodes ordered correctly with a series missing a domain', () {
     // A LTR chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     chart.context = context;
     // Drawn vertically
     chart.vertical = true;
     // Set step size of 50, which should be the width of the bounding box
-    when(domainAxis.stepSize).thenReturn(50.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(75.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(125.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(175.0);
+    when(() => domainAxis.stepSize).thenReturn(50.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(75.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(125.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(175.0);
     // Create a series with a missing domain
     final seriesWithMissingDomain = MutableSeries(Series<MyRow, String>(
       id: 'm1',
@@ -214,23 +214,22 @@ void main() {
 
   test('creates nodes with minimum width', () {
     // A behavior with minimum width of 50
-    final behaviorWithMinWidth =
-        DomainA11yExploreBehavior<String>(minimumWidth: 50.0);
+    final behaviorWithMinWidth = DomainA11yExploreBehavior<String>(minimumWidth: 50.0);
     behaviorWithMinWidth.attachTo(chart);
 
     // A LTR chart
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     chart.context = context;
     // Drawn vertically
     chart.vertical = true;
     // Return a step size of 20, which is less than the minimum width.
     // Expect the results to use the minimum width of 50 instead.
-    when(domainAxis.stepSize).thenReturn(20.0);
-    when(domainAxis.getLocation('s1d1')).thenReturn(75.0);
-    when(domainAxis.getLocation('s1d2')).thenReturn(125.0);
-    when(domainAxis.getLocation('s1d3')).thenReturn(175.0);
+    when(() => domainAxis.stepSize).thenReturn(20.0);
+    when(() => domainAxis.getLocation('s1d1')).thenReturn(75.0);
+    when(() => domainAxis.getLocation('s1d2')).thenReturn(125.0);
+    when(() => domainAxis.getLocation('s1d3')).thenReturn(175.0);
     // Call fire on post process for the behavior to get the series list.
     chart.callFireOnPostprocess([_series1]);
 

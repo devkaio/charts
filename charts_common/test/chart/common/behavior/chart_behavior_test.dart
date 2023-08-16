@@ -1,5 +1,9 @@
 // @dart=2.9
 
+import 'package:charts_common/src/chart/common/base_chart.dart';
+import 'package:charts_common/src/chart/common/behavior/chart_behavior.dart';
+import 'package:charts_common/src/chart/common/datum_details.dart';
+import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
 // Copyright 2018 the Charts project authors. Please see the AUTHORS file
 // for details.
 //
@@ -16,13 +20,7 @@
 // limitations under the License.
 
 import 'package:charts_common/src/chart/common/series_renderer.dart';
-import 'package:mockito/mockito.dart';
-
-import 'package:charts_common/src/chart/common/base_chart.dart';
-import 'package:charts_common/src/chart/common/behavior/chart_behavior.dart';
-import 'package:charts_common/src/chart/common/datum_details.dart';
-import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
-
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockBehavior extends Mock implements ChartBehavior<String> {}
@@ -63,74 +61,74 @@ void main() {
     chart = ConcreteChart();
 
     namedBehavior = MockBehavior();
-    when(namedBehavior.role).thenReturn('foo');
+    when(() => namedBehavior.role).thenReturn('foo');
 
     unnamedBehavior = MockBehavior();
-    when(unnamedBehavior.role).thenReturn(null);
+    when(() => unnamedBehavior.role).thenReturn(null);
   });
 
   group('Attach & Detach', () {
     test('attach is called once', () {
       chart.addBehavior(namedBehavior);
-      verify(namedBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.attachTo(chart)).called(1);
 
-      verify(namedBehavior.role);
+      verify(() => namedBehavior.role);
       verifyNoMoreInteractions(namedBehavior);
     });
 
     test('deteach is called once', () {
       chart.addBehavior(namedBehavior);
-      verify(namedBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.attachTo(chart)).called(1);
 
       chart.removeBehavior(namedBehavior);
-      verify(namedBehavior.removeFrom(chart)).called(1);
+      verify(() => namedBehavior.removeFrom(chart)).called(1);
 
-      verify(namedBehavior.role);
+      verify(() => namedBehavior.role);
       verifyNoMoreInteractions(namedBehavior);
     });
 
     test('detach is called when name is reused', () {
       final otherBehavior = MockBehavior();
-      when(otherBehavior.role).thenReturn('foo');
+      when(() => otherBehavior.role).thenReturn('foo');
 
       chart.addBehavior(namedBehavior);
-      verify(namedBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.attachTo(chart)).called(1);
 
       chart.addBehavior(otherBehavior);
-      verify(namedBehavior.removeFrom(chart)).called(1);
-      verify(otherBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.removeFrom(chart)).called(1);
+      verify(() => otherBehavior.attachTo(chart)).called(1);
 
-      verify(namedBehavior.role);
-      verify(otherBehavior.role);
+      verify(() => namedBehavior.role);
+      verify(() => otherBehavior.role);
       verifyNoMoreInteractions(namedBehavior);
       verifyNoMoreInteractions(otherBehavior);
     });
 
     test('detach is not called when name is null', () {
       chart.addBehavior(namedBehavior);
-      verify(namedBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.attachTo(chart)).called(1);
 
       chart.addBehavior(unnamedBehavior);
-      verify(unnamedBehavior.attachTo(chart)).called(1);
+      verify(() => unnamedBehavior.attachTo(chart)).called(1);
 
-      verify(namedBehavior.role);
-      verify(unnamedBehavior.role);
+      verify(() => namedBehavior.role);
+      verify(() => unnamedBehavior.role);
       verifyNoMoreInteractions(namedBehavior);
       verifyNoMoreInteractions(unnamedBehavior);
     });
 
     test('detach is not called when name is different', () {
       final otherBehavior = MockBehavior();
-      when(otherBehavior.role).thenReturn('bar');
+      when(() => otherBehavior.role).thenReturn('bar');
 
       chart.addBehavior(namedBehavior);
-      verify(namedBehavior.attachTo(chart)).called(1);
+      verify(() => namedBehavior.attachTo(chart)).called(1);
 
       chart.addBehavior(otherBehavior);
-      verify(otherBehavior.attachTo(chart)).called(1);
+      verify(() => otherBehavior.attachTo(chart)).called(1);
 
-      verify(namedBehavior.role);
-      verify(otherBehavior.role);
+      verify(() => namedBehavior.role);
+      verify(() => otherBehavior.role);
       verifyNoMoreInteractions(namedBehavior);
       verifyNoMoreInteractions(otherBehavior);
     });
@@ -140,16 +138,16 @@ void main() {
 
       chart.addBehavior(parentBehavior);
       // The parent should add the child behavoir.
-      verify(unnamedBehavior.attachTo(chart)).called(1);
+      verify(() => unnamedBehavior.attachTo(chart)).called(1);
 
       chart.destroy();
 
       // The parent should remove the child behavior.
-      verify(unnamedBehavior.removeFrom(chart)).called(1);
+      verify(() => unnamedBehavior.removeFrom(chart)).called(1);
 
       // Remove should only be called once and shouldn't trigger a concurrent
       // modification exception.
-      verify(unnamedBehavior.role);
+      verify(() => unnamedBehavior.role);
       verifyNoMoreInteractions(unnamedBehavior);
     });
   });

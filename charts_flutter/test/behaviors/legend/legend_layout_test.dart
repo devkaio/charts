@@ -13,11 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:flutter/material.dart';
-import 'package:mockito/mockito.dart';
-import 'package:test/test.dart';
-
 import 'package:charts_flutter/src/behaviors/legend/legend_layout.dart';
+import 'package:flutter/material.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:test/test.dart';
 
 // Can't use Mockito annotations with BuildContext yet? Fake it.
 class FakeBuildContext extends Fake implements BuildContext {}
@@ -40,8 +39,7 @@ void main() {
     });
 
     test('does not build extra columns if max columns exceed widget count', () {
-      final builder =
-          new TabularLegendLayout.horizontalFirst(desiredMaxColumns: 10);
+      final builder = new TabularLegendLayout.horizontalFirst(desiredMaxColumns: 10);
       final widgets = <Widget>[new Text('1'), new Text('2'), new Text('3')];
 
       final Table layout = builder.build(context, widgets) as Table;
@@ -50,11 +48,9 @@ void main() {
     });
 
     test('builds horizontally until max column exceeded', () {
-      final builder =
-          new TabularLegendLayout.horizontalFirst(desiredMaxColumns: 2);
+      final builder = new TabularLegendLayout.horizontalFirst(desiredMaxColumns: 2);
 
-      final widgets = new List<Widget>.generate(
-          7, (int index) => new Text(index.toString()));
+      final widgets = new List<Widget>.generate(7, (int index) => new Text(index.toString()));
 
       final Table layout = builder.build(context, widgets) as Table;
       expect(layout.children.length, 4);
@@ -96,8 +92,7 @@ void main() {
     test('builds vertically until max column exceeded', () {
       final builder = new TabularLegendLayout.verticalFirst(desiredMaxRows: 2);
 
-      final widgets = new List<Widget>.generate(
-          7, (int index) => new Text(index.toString()));
+      final widgets = new List<Widget>.generate(7, (int index) => new Text(index.toString()));
 
       final Table layout = builder.build(context, widgets) as Table;
       expect(layout.children.length, 2);

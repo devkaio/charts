@@ -30,8 +30,7 @@ import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/chart/common/processed_series.dart';
 import 'package:charts_common/src/common/color.dart';
 import 'package:charts_common/src/data/series.dart';
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -70,40 +69,33 @@ void main() {
   /////////////////////////////////////////
   // Convenience methods for creating mocks.
   /////////////////////////////////////////
-  BaseBarRenderer _configureBaseRenderer(
-      BaseBarRenderer renderer, bool vertical) {
+  BaseBarRenderer _configureBaseRenderer(BaseBarRenderer renderer, bool vertical) {
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     final verticalChart = MockChart();
-    when(verticalChart.vertical).thenReturn(vertical);
-    when(verticalChart.context).thenReturn(context);
+    when(() => verticalChart.vertical).thenReturn(vertical);
+    when(() => verticalChart.context).thenReturn(context);
     renderer.onAttach(verticalChart);
 
-    final layoutBounds = vertical
-        ? Rectangle<int>(70, 20, 230, 100)
-        : Rectangle<int>(70, 20, 100, 230);
+    final layoutBounds = vertical ? Rectangle<int>(70, 20, 230, 100) : Rectangle<int>(70, 20, 100, 230);
     renderer.layout(layoutBounds, layoutBounds);
     return renderer;
   }
 
   BaseBarRenderer _makeBarRenderer({bool vertical, BarGroupingType groupType}) {
-    final renderer =
-        BarRenderer(config: BarRendererConfig(groupingType: groupType));
+    final renderer = BarRenderer(config: BarRendererConfig(groupingType: groupType));
     _configureBaseRenderer(renderer, vertical);
     return renderer;
   }
 
-  BaseBarRenderer _makeBarTargetRenderer(
-      {bool vertical, BarGroupingType groupType}) {
-    final renderer = BarTargetLineRenderer(
-        config: BarTargetLineRendererConfig(groupingType: groupType));
+  BaseBarRenderer _makeBarTargetRenderer({bool vertical, BarGroupingType groupType}) {
+    final renderer = BarTargetLineRenderer(config: BarTargetLineRendererConfig(groupingType: groupType));
     _configureBaseRenderer(renderer, vertical);
     return renderer;
   }
 
-  MutableSeries _makeSeries(
-      {String id, String seriesCategory, bool vertical = true}) {
+  MutableSeries _makeSeries({String id, String seriesCategory, bool vertical = true}) {
     final data = <MyRow>[
       MyRow('camp0', 10),
       MyRow('camp1', 10),
@@ -122,44 +114,41 @@ void main() {
 
     // Mock the Domain axis results.
     final domainAxis = MockOrdinalAxis();
-    when(domainAxis.rangeBand).thenReturn(100.0);
+    when(() => domainAxis.rangeBand).thenReturn(100.0);
     final domainOffset = vertical ? 70.0 : 20.0;
-    when(domainAxis.getLocation('camp0'))
-        .thenReturn(domainOffset + 10.0 + 50.0);
-    when(domainAxis.getLocation('camp1'))
-        .thenReturn(domainOffset + 10.0 + 100.0 + 10.0 + 50.0);
-    when(domainAxis.getLocation('outsideViewport')).thenReturn(-51.0);
+    when(() => domainAxis.getLocation('camp0')).thenReturn(domainOffset + 10.0 + 50.0);
+    when(() => domainAxis.getLocation('camp1')).thenReturn(domainOffset + 10.0 + 100.0 + 10.0 + 50.0);
+    when(() => domainAxis.getLocation('outsideViewport')).thenReturn(-51.0);
 
     if (vertical) {
-      when(domainAxis.getDomain(100.0)).thenReturn('camp0');
-      when(domainAxis.getDomain(93.0)).thenReturn('camp0');
-      when(domainAxis.getDomain(130.0)).thenReturn('camp0');
-      when(domainAxis.getDomain(65.0)).thenReturn('outsideViewport');
+      when(() => domainAxis.getDomain(100.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(93.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(130.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(65.0)).thenReturn('outsideViewport');
     } else {
-      when(domainAxis.getDomain(50.0)).thenReturn('camp0');
-      when(domainAxis.getDomain(43.0)).thenReturn('camp0');
-      when(domainAxis.getDomain(80.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(50.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(43.0)).thenReturn('camp0');
+      when(() => domainAxis.getDomain(80.0)).thenReturn('camp0');
     }
     series.setAttr(domainAxisKey, domainAxis);
 
     // Mock the Measure axis results.
     final measureAxis = MockNumericAxis();
     if (vertical) {
-      when(measureAxis.getLocation(0.0)).thenReturn(20.0 + 100.0);
-      when(measureAxis.getLocation(10.0)).thenReturn(20.0 + 100.0 - 10.0);
-      when(measureAxis.getLocation(20.0)).thenReturn(20.0 + 100.0 - 20.0);
+      when(() => measureAxis.getLocation(0.0)).thenReturn(20.0 + 100.0);
+      when(() => measureAxis.getLocation(10.0)).thenReturn(20.0 + 100.0 - 10.0);
+      when(() => measureAxis.getLocation(20.0)).thenReturn(20.0 + 100.0 - 20.0);
     } else {
-      when(measureAxis.getLocation(0.0)).thenReturn(70.0);
-      when(measureAxis.getLocation(10.0)).thenReturn(70.0 + 10.0);
-      when(measureAxis.getLocation(20.0)).thenReturn(70.0 + 20.0);
+      when(() => measureAxis.getLocation(0.0)).thenReturn(70.0);
+      when(() => measureAxis.getLocation(10.0)).thenReturn(70.0 + 10.0);
+      when(() => measureAxis.getLocation(20.0)).thenReturn(70.0 + 20.0);
     }
     series.setAttr(measureAxisKey, measureAxis);
 
     return series;
   }
 
-  MutableSeries _makeDateTimeSeries(
-      {String id, String seriesCategory, bool vertical = true}) {
+  MutableSeries _makeDateTimeSeries({String id, String seriesCategory, bool vertical = true}) {
     final data = <MyDateTimeRow>[
       MyDateTimeRow(date0, 10),
       MyDateTimeRow(date1, 10),
@@ -178,25 +167,24 @@ void main() {
 
     // Mock the Domain axis results.
     final domainAxis = MockDateTimeAxis();
-    when(domainAxis.rangeBand).thenReturn(100.0);
+    when(() => domainAxis.rangeBand).thenReturn(100.0);
     final domainOffset = vertical ? 70.0 : 20.0;
-    when(domainAxis.getLocation(date0)).thenReturn(domainOffset + 10.0 + 50.0);
-    when(domainAxis.getLocation(date1))
-        .thenReturn(domainOffset + 10.0 + 100.0 + 10.0 + 50.0);
-    when(domainAxis.getLocation(dateOutsideViewport)).thenReturn(-51.0);
+    when(() => domainAxis.getLocation(date0)).thenReturn(domainOffset + 10.0 + 50.0);
+    when(() => domainAxis.getLocation(date1)).thenReturn(domainOffset + 10.0 + 100.0 + 10.0 + 50.0);
+    when(() => domainAxis.getLocation(dateOutsideViewport)).thenReturn(-51.0);
 
     series.setAttr(domainAxisKey, domainAxis);
 
     // Mock the Measure axis results.
     final measureAxis = MockNumericAxis();
     if (vertical) {
-      when(measureAxis.getLocation(0.0)).thenReturn(20.0 + 100.0);
-      when(measureAxis.getLocation(10.0)).thenReturn(20.0 + 100.0 - 10.0);
-      when(measureAxis.getLocation(20.0)).thenReturn(20.0 + 100.0 - 20.0);
+      when(() => measureAxis.getLocation(0.0)).thenReturn(20.0 + 100.0);
+      when(() => measureAxis.getLocation(10.0)).thenReturn(20.0 + 100.0 - 10.0);
+      when(() => measureAxis.getLocation(20.0)).thenReturn(20.0 + 100.0 - 20.0);
     } else {
-      when(measureAxis.getLocation(0.0)).thenReturn(70.0);
-      when(measureAxis.getLocation(10.0)).thenReturn(70.0 + 10.0);
-      when(measureAxis.getLocation(20.0)).thenReturn(70.0 + 20.0);
+      when(() => measureAxis.getLocation(0.0)).thenReturn(70.0);
+      when(() => measureAxis.getLocation(10.0)).thenReturn(70.0 + 10.0);
+      when(() => measureAxis.getLocation(20.0)).thenReturn(70.0 + 20.0);
     }
     series.setAttr(measureAxisKey, measureAxis);
 
@@ -215,8 +203,7 @@ void main() {
   group('edge cases', () {
     test('hit target on missing data in group should highlight group', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo')..data.clear(),
         _makeSeries(id: 'bar'),
@@ -227,10 +214,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -245,8 +229,7 @@ void main() {
 
     test('all series without data is skipped', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo')..data.clear(),
         _makeSeries(id: 'bar')..data.clear(),
@@ -257,10 +240,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(0));
@@ -268,8 +248,7 @@ void main() {
 
     test('single overlay series is skipped', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo')..overlaySeries = true,
         _makeSeries(id: 'bar'),
@@ -280,10 +259,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -298,8 +274,7 @@ void main() {
 
     test('all overlay series is skipped', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo')..overlaySeries = true,
         _makeSeries(id: 'bar')..overlaySeries = true,
@@ -310,10 +285,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(0));
@@ -326,8 +298,7 @@ void main() {
   group('Vertical BarRenderer', () {
     test('hit test works on bar', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[_makeSeries(id: 'foo')];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
@@ -335,10 +306,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -352,8 +320,7 @@ void main() {
 
     test('hit test expands to grouped bars', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -364,10 +331,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -389,8 +353,7 @@ void main() {
 
     test('hit test expands to stacked bars', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -401,10 +364,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -427,8 +387,7 @@ void main() {
 
     test('hit test expands to grouped stacked', () {
       // Setup
-      final renderer = _makeBarRenderer(
-          vertical: true, groupType: BarGroupingType.groupedStacked);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.groupedStacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo0', seriesCategory: 'c0'),
         _makeSeries(id: 'bar0', seriesCategory: 'c0'),
@@ -441,10 +400,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(4));
@@ -481,8 +437,7 @@ void main() {
 
     test('hit test works above bar', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[_makeSeries(id: 'foo')];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
@@ -490,8 +445,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0), selectNearestByDomain, null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -505,8 +459,7 @@ void main() {
 
     test('hit test works between bars in a group', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -517,10 +470,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -542,11 +492,8 @@ void main() {
 
     test('no selection for bars outside of viewport', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
-      final seriesList = <MutableSeries>[
-        _makeSeries(id: 'foo')..data.add(MyRow('outsideViewport', 20))
-      ];
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final seriesList = <MutableSeries>[_makeSeries(id: 'foo')..data.add(MyRow('outsideViewport', 20))];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
@@ -554,8 +501,7 @@ void main() {
 
       // Act
       // Note: point is in the axis, over a bar outside of the viewport.
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(0));
@@ -568,21 +514,15 @@ void main() {
   group('Horizontal BarRenderer', () {
     test('hit test works on bar', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
-      final seriesList = <MutableSeries>[
-        _makeSeries(id: 'foo', vertical: false)
-      ];
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
+      final seriesList = <MutableSeries>[_makeSeries(id: 'foo', vertical: false)];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 13.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 13.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -596,8 +536,7 @@ void main() {
 
     test('hit test expands to grouped bars', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: false, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -608,10 +547,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -633,8 +569,7 @@ void main() {
 
     test('hit test expands to stacked bars', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -645,10 +580,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -670,8 +602,7 @@ void main() {
 
     test('hit test expands to grouped stacked', () {
       // Setup
-      final renderer = _makeBarRenderer(
-          vertical: false, groupType: BarGroupingType.groupedStacked);
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.groupedStacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo0', seriesCategory: 'c0', vertical: false),
         _makeSeries(id: 'bar0', seriesCategory: 'c0', vertical: false),
@@ -684,10 +615,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(4));
@@ -723,21 +651,15 @@ void main() {
 
     test('hit test works above bar', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
-      final seriesList = <MutableSeries>[
-        _makeSeries(id: 'foo', vertical: false)
-      ];
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.stacked);
+      final seriesList = <MutableSeries>[_makeSeries(id: 'foo', vertical: false)];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 100.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 100.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -751,8 +673,7 @@ void main() {
 
     test('hit test works between bars in a group', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: false, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: false, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -763,10 +684,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 50.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 50.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -793,8 +711,7 @@ void main() {
   group('Vertical BarTargetRenderer', () {
     test('hit test works above target', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[_makeSeries(id: 'foo')];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
@@ -802,8 +719,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0), selectNearestByDomain, null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -817,8 +733,7 @@ void main() {
 
     test('hit test expands to grouped bar targets', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -829,10 +744,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -854,8 +766,7 @@ void main() {
 
     test('hit test expands to stacked bar targets', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -866,10 +777,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -892,8 +800,7 @@ void main() {
 
     test('hit test expands to grouped stacked', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.groupedStacked);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.groupedStacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo0', seriesCategory: 'c0'),
         _makeSeries(id: 'bar0', seriesCategory: 'c0'),
@@ -906,10 +813,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(4));
@@ -946,8 +850,7 @@ void main() {
 
     test('hit test works between targets in a group', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo'),
         _makeSeries(id: 'bar'),
@@ -958,10 +861,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -983,11 +883,8 @@ void main() {
 
     test('no selection for targets outside of viewport', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.grouped);
-      final seriesList = <MutableSeries>[
-        _makeSeries(id: 'foo')..data.add(MyRow('outsideViewport', 20))
-      ];
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final seriesList = <MutableSeries>[_makeSeries(id: 'foo')..data.add(MyRow('outsideViewport', 20))];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
@@ -995,8 +892,7 @@ void main() {
 
       // Act
       // Note: point is in the axis, over a bar outside of the viewport.
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(0));
@@ -1009,21 +905,15 @@ void main() {
   group('Horizontal BarTargetRenderer', () {
     test('hit test works above target', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: false, groupType: BarGroupingType.stacked);
-      final seriesList = <MutableSeries>[
-        _makeSeries(id: 'foo', vertical: false)
-      ];
+      final renderer = _makeBarTargetRenderer(vertical: false, groupType: BarGroupingType.stacked);
+      final seriesList = <MutableSeries>[_makeSeries(id: 'foo', vertical: false)];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 100.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 100.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -1037,8 +927,7 @@ void main() {
 
     test('hit test expands to grouped bar targets', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: false, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarTargetRenderer(vertical: false, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -1049,10 +938,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1074,8 +960,7 @@ void main() {
 
     test('hit test expands to stacked bar targets', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: false, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarTargetRenderer(vertical: false, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -1086,10 +971,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1111,8 +993,7 @@ void main() {
 
     test('hit test expands to grouped stacked', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: false, groupType: BarGroupingType.groupedStacked);
+      final renderer = _makeBarTargetRenderer(vertical: false, groupType: BarGroupingType.groupedStacked);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo0', seriesCategory: 'c0', vertical: false),
         _makeSeries(id: 'bar0', seriesCategory: 'c0', vertical: false),
@@ -1125,10 +1006,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 20.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(4));
@@ -1164,8 +1042,7 @@ void main() {
 
     test('hit test works between bars in a group', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: false, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarTargetRenderer(vertical: false, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeSeries(id: 'foo', vertical: false),
         _makeSeries(id: 'bar', vertical: false),
@@ -1176,10 +1053,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 5.0, 20.0 + 10.0 + 50.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 5.0, 20.0 + 10.0 + 50.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1206,8 +1080,7 @@ void main() {
   group('with date time axis and vertical bar', () {
     test('hit test works on bar', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[_makeDateTimeSeries(id: 'foo')];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
@@ -1215,10 +1088,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(1));
@@ -1232,8 +1102,7 @@ void main() {
 
     test('hit test expands to grouped bars', () {
       // Setup
-      final renderer =
-          _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeDateTimeSeries(id: 'foo'),
         _makeDateTimeSeries(id: 'bar'),
@@ -1244,10 +1113,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1269,8 +1135,7 @@ void main() {
 
     test('hit test expands to stacked bar targets', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.stacked);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.stacked);
       final seriesList = <MutableSeries>[
         _makeDateTimeSeries(id: 'foo'),
         _makeDateTimeSeries(id: 'bar'),
@@ -1281,10 +1146,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 13.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1307,8 +1169,7 @@ void main() {
 
     test('hit test expands to grouped stacked', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.groupedStacked);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.groupedStacked);
       final seriesList = <MutableSeries>[
         _makeDateTimeSeries(id: 'foo0', seriesCategory: 'c0'),
         _makeDateTimeSeries(id: 'bar0', seriesCategory: 'c0'),
@@ -1321,10 +1182,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 20.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(4));
@@ -1361,8 +1219,7 @@ void main() {
 
     test('hit test works between targets in a group', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.grouped);
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.grouped);
       final seriesList = <MutableSeries>[
         _makeDateTimeSeries(id: 'foo'),
         _makeDateTimeSeries(id: 'bar'),
@@ -1373,10 +1230,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0),
-          selectNearestByDomain,
-          null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(70.0 + 10.0 + 50.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(2));
@@ -1398,12 +1252,8 @@ void main() {
 
     test('no selection for targets outside of viewport', () {
       // Setup
-      final renderer = _makeBarTargetRenderer(
-          vertical: true, groupType: BarGroupingType.grouped);
-      final seriesList = <MutableSeries>[
-        _makeDateTimeSeries(id: 'foo')
-          ..data.add(MyDateTimeRow(dateOutsideViewport, 20))
-      ];
+      final renderer = _makeBarTargetRenderer(vertical: true, groupType: BarGroupingType.grouped);
+      final seriesList = <MutableSeries>[_makeDateTimeSeries(id: 'foo')..data.add(MyDateTimeRow(dateOutsideViewport, 20))];
       renderer.configureSeries(seriesList);
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
@@ -1411,8 +1261,7 @@ void main() {
 
       // Act
       // Note: point is in the axis, over a bar outside of the viewport.
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
+      final details = renderer.getNearestDatumDetailPerSeries(Point<double>(65.0, 20.0 + 100.0 - 5.0), selectNearestByDomain, null);
 
       // Verify
       expect(details.length, equals(0));

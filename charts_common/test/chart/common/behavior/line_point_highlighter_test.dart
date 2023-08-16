@@ -17,27 +17,26 @@
 
 import 'dart:math' show Point, Rectangle;
 
-import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
+import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/common/base_chart.dart';
 import 'package:charts_common/src/chart/common/behavior/line_point_highlighter.dart';
 import 'package:charts_common/src/chart/common/datum_details.dart';
 import 'package:charts_common/src/chart/common/processed_series.dart';
+import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
 import 'package:charts_common/src/chart/common/series_datum.dart';
 import 'package:charts_common/src/chart/common/series_renderer.dart';
-import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
 import 'package:charts_common/src/common/material_palette.dart';
 import 'package:charts_common/src/common/math.dart';
 import 'package:charts_common/src/data/series.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChart extends Mock implements CartesianChart {
   LifecycleListener lastListener;
 
   @override
-  LifecycleListener addLifecycleListener(LifecycleListener listener) =>
-      lastListener = listener;
+  LifecycleListener addLifecycleListener(LifecycleListener listener) => lastListener = listener;
 
   @override
   bool removeLifecycleListener(LifecycleListener listener) {
@@ -54,8 +53,7 @@ class MockSelectionModel extends Mock implements MutableSelectionModel {
   SelectionModelListener lastListener;
 
   @override
-  void addSelectionChangedListener(SelectionModelListener listener) =>
-      lastListener = listener;
+  void addSelectionChangedListener(SelectionModelListener listener) => lastListener = listener;
 
   @override
   void removeSelectionChangedListener(SelectionModelListener listener) {
@@ -91,8 +89,7 @@ class MockSeriesRenderer<D> extends BaseSeriesRenderer<D> {
       null;
 
   @override
-  DatumDetails<D> addPositionToDetailsForSeriesDatum(
-      DatumDetails<D> details, SeriesDatum<D> seriesDatum) {
+  DatumDetails<D> addPositionToDetailsForSeriesDatum(DatumDetails<D> details, SeriesDatum<D> seriesDatum) {
     return DatumDetails.from(details, chartPosition: NullablePoint(0.0, 0.0));
   }
 }
@@ -130,20 +127,17 @@ void main() {
     }
 
     for (int i = 0; i < _series1.data.length; i++) {
-      when(_selectionModel.isDatumSelected(_series1, i))
-          .thenReturn(selected.contains(_series1.data[i]));
+      when(() => _selectionModel.isDatumSelected(_series1, i)).thenReturn(selected.contains(_series1.data[i]));
     }
     for (int i = 0; i < _series2.data.length; i++) {
-      when(_selectionModel.isDatumSelected(_series2, i))
-          .thenReturn(selected.contains(_series2.data[i]));
+      when(() => _selectionModel.isDatumSelected(_series2, i)).thenReturn(selected.contains(_series2.data[i]));
     }
 
-    when(_selectionModel.selectedDatum).thenReturn(selection);
+    when(() => _selectionModel.selectedDatum).thenReturn(selection);
 
     final selectedDetails = _mockGetSelectedDatumDetails(selection);
 
-    when(_chart.getSelectedDatumDetails(SelectionModelType.info))
-        .thenReturn(selectedDetails);
+    when(() => _chart.getSelectedDatumDetails(SelectionModelType.info)).thenReturn(selectedDetails);
   }
 
   setUp(() {
@@ -152,8 +146,7 @@ void main() {
     _seriesRenderer = MockSeriesRenderer();
 
     _selectionModel = MockSelectionModel();
-    when(_chart.getSelectionModel(SelectionModelType.info))
-        .thenReturn(_selectionModel);
+    when(() => _chart.getSelectionModel(SelectionModelType.info)).thenReturn(_selectionModel);
 
     _series1 = MutableSeries(Series<MyRow, int>(
         id: 's1',
@@ -175,8 +168,7 @@ void main() {
   group('LinePointHighlighter', () {
     test('highlights the selected points', () {
       // Setup
-      final behavior =
-          LinePointHighlighter(selectionModelType: SelectionModelType.info);
+      final behavior = LinePointHighlighter(selectionModelType: SelectionModelType.info);
       final tester = LinePointHighlighterTester(behavior);
       behavior.attachTo(_chart);
       _setupSelection([
@@ -198,7 +190,7 @@ void main() {
 
       // Act
       _selectionModel.lastListener(_selectionModel);
-      verify(_chart.redraw(skipAnimation: true, skipLayout: true));
+      verify(() => _chart.redraw(skipAnimation: true, skipLayout: true));
 
       _chart.lastListener.onAxisConfigured();
 
@@ -216,30 +208,27 @@ void main() {
 
     test('listens to other selection models', () {
       // Setup
-      final behavior =
-          LinePointHighlighter(selectionModelType: SelectionModelType.action);
-      when(_chart.getSelectionModel(SelectionModelType.action))
-          .thenReturn(_selectionModel);
+      final behavior = LinePointHighlighter(selectionModelType: SelectionModelType.action);
+      when(() => _chart.getSelectionModel(SelectionModelType.action)).thenReturn(_selectionModel);
 
       // Act
       behavior.attachTo(_chart);
 
       // Verify
-      verify(_chart.getSelectionModel(SelectionModelType.action));
-      verifyNever(_chart.getSelectionModel(SelectionModelType.info));
+      verify(() => _chart.getSelectionModel(SelectionModelType.action));
+      verifyNever(() => _chart.getSelectionModel(SelectionModelType.info));
     });
 
     test('leaves everything alone with no selection', () {
       // Setup
-      final behavior =
-          LinePointHighlighter(selectionModelType: SelectionModelType.info);
+      final behavior = LinePointHighlighter(selectionModelType: SelectionModelType.info);
       final tester = LinePointHighlighterTester(behavior);
       behavior.attachTo(_chart);
       _setupSelection([]);
 
       // Act
       _selectionModel.lastListener(_selectionModel);
-      verify(_chart.redraw(skipAnimation: true, skipLayout: true));
+      verify(() => _chart.redraw(skipAnimation: true, skipLayout: true));
       _chart.lastListener.onAxisConfigured();
 
       // Verify
@@ -256,8 +245,7 @@ void main() {
 
     test('cleans up', () {
       // Setup
-      final behavior =
-          LinePointHighlighter(selectionModelType: SelectionModelType.info);
+      final behavior = LinePointHighlighter(selectionModelType: SelectionModelType.info);
       behavior.attachTo(_chart);
       _setupSelection([
         SeriesDatum(_series1, _s1D2),

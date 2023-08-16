@@ -25,8 +25,7 @@ import 'package:charts_common/src/chart/cartesian/axis/spec/tick_spec.dart';
 import 'package:charts_common/src/chart/cartesian/axis/static_tick_provider.dart';
 import 'package:charts_common/src/common/graphics_factory.dart';
 import 'package:charts_common/src/common/text_element.dart';
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockTickDrawStrategy extends Mock implements TickDrawStrategy<num> {}
@@ -40,18 +39,19 @@ class MockGraphicsFactory extends Mock implements GraphicsFactory {
 
 class MockTextElement extends Mock implements TextElement {}
 
-StaticTickProvider<num> _createProvider(List<num> values) =>
-    StaticTickProvider<num>(values.map((v) => TickSpec(v)).toList());
+StaticTickProvider<num> _createProvider(List<num> values) => StaticTickProvider<num>(values.map((v) => TickSpec(v)).toList());
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(AxisOrientation.bottom);
+  });
   test('changing first tick only', () {
     var axis = NumericAxis(
       tickProvider: _createProvider([1, 10]),
     );
 
     var drawStrategy = MockTickDrawStrategy();
-    when(drawStrategy.collides(any, any)).thenReturn(CollisionReport<num>(
-        ticks: [], ticksCollide: false, alternateTicksUsed: false));
+    when(() => drawStrategy.collides(any(), any())).thenReturn(CollisionReport<num>(ticks: [], ticksCollide: false, alternateTicksUsed: false));
 
     var tester = AxisTester(axis);
     axis.tickDrawStrategy = drawStrategy;
@@ -74,8 +74,7 @@ void main() {
     );
 
     var drawStrategy = MockTickDrawStrategy();
-    when(drawStrategy.collides(any, any)).thenReturn(CollisionReport<num>(
-        ticks: [], ticksCollide: false, alternateTicksUsed: false));
+    when(() => drawStrategy.collides(any(), any())).thenReturn(CollisionReport<num>(ticks: [], ticksCollide: false, alternateTicksUsed: false));
 
     axis.tickDrawStrategy = drawStrategy;
     axis.graphicsFactory = MockGraphicsFactory();
@@ -88,9 +87,6 @@ void main() {
     var drawBounds = Rectangle<int>(0, 0, maxWidth, maxHeight);
     axis.layout(componentBounds, drawBounds);
 
-    verify(drawStrategy.updateTickWidth(
-            any, maxWidth, maxHeight, axisOrientation,
-            collision: false))
-        .called(1);
+    verify(() => drawStrategy.updateTickWidth(any(), maxWidth, maxHeight, axisOrientation, collision: false)).called(1);
   });
 }

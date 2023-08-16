@@ -19,19 +19,16 @@ import 'package:charts_common/src/chart/bar/bar_renderer.dart';
 import 'package:charts_common/src/chart/bar/bar_renderer_config.dart';
 import 'package:charts_common/src/chart/bar/base_bar_renderer.dart';
 import 'package:charts_common/src/chart/bar/base_bar_renderer_config.dart';
-import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
+import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/common/chart_canvas.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
-import 'package:charts_common/src/chart/common/processed_series.dart'
-    show MutableSeries;
-import 'package:charts_common/src/common/material_palette.dart'
-    show MaterialPalette;
+import 'package:charts_common/src/chart/common/processed_series.dart' show MutableSeries;
 import 'package:charts_common/src/common/color.dart';
+import 'package:charts_common/src/common/material_palette.dart' show MaterialPalette;
 import 'package:charts_common/src/data/series.dart' show Series;
-
 import 'package:meta/meta.dart' show required;
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -68,8 +65,7 @@ class FakeBarRenderer<D> extends BarRenderer<D> {
   }) : super.internal(config: config, rendererId: rendererId);
 
   @override
-  void paintBar(ChartCanvas canvas, double animationPercent,
-      Iterable<BarRendererElement<D>> barElements) {
+  void paintBar(ChartCanvas canvas, double animationPercent, Iterable<BarRendererElement<D>> barElements) {
     paintBarCallCount += 1;
     elementsPainted.add(List.of(barElements));
   }
@@ -83,14 +79,13 @@ void main() {
   /////////////////////////////////////////
   // Convenience methods for creating mocks.
   /////////////////////////////////////////
-  BaseBarRenderer _configureBaseRenderer(
-      BaseBarRenderer renderer, bool vertical) {
+  BaseBarRenderer _configureBaseRenderer(BaseBarRenderer renderer, bool vertical) {
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     final verticalChart = MockChart();
-    when(verticalChart.vertical).thenReturn(vertical);
-    when(verticalChart.context).thenReturn(context);
+    when(() => verticalChart.vertical).thenReturn(vertical);
+    when(() => verticalChart.context).thenReturn(context);
     renderer.onAttach(verticalChart);
 
     return renderer;
@@ -229,8 +224,7 @@ void main() {
 
   group('preprocess', () {
     test('with grouped bars', () {
-      renderer = makeRenderer(
-          config: BarRendererConfig(groupingType: BarGroupingType.grouped));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.grouped));
 
       renderer.preprocessSeries(seriesList);
 
@@ -289,9 +283,7 @@ void main() {
     });
 
     test('with grouped stacked bars', () {
-      renderer = makeRenderer(
-          config:
-              BarRendererConfig(groupingType: BarGroupingType.groupedStacked));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.groupedStacked));
 
       renderer.preprocessSeries(groupedStackedSeriesList);
 
@@ -401,8 +393,7 @@ void main() {
     });
 
     test('with stacked bars', () {
-      renderer = makeRenderer(
-          config: BarRendererConfig(groupingType: BarGroupingType.stacked));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.stacked));
 
       renderer.preprocessSeries(seriesList);
 
@@ -470,8 +461,7 @@ void main() {
 
       seriesList[0].data[2] = MyRow('MyCampaign3', 0);
 
-      renderer = makeRenderer(
-          config: BarRendererConfig(groupingType: BarGroupingType.stacked));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.stacked));
 
       renderer.preprocessSeries(seriesList);
 
@@ -558,9 +548,7 @@ void main() {
 
   group('preprocess weight pattern', () {
     test('with grouped bars', () {
-      renderer = makeRenderer(
-          config: BarRendererConfig(
-              groupingType: BarGroupingType.grouped, weightPattern: [3, 2, 1]));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.grouped, weightPattern: [3, 2, 1]));
 
       renderer.preprocessSeries(seriesList);
 
@@ -623,10 +611,7 @@ void main() {
     });
 
     test('with grouped stacked bars', () {
-      renderer = makeRenderer(
-          config: BarRendererConfig(
-              groupingType: BarGroupingType.groupedStacked,
-              weightPattern: [2, 1]));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.groupedStacked, weightPattern: [2, 1]));
 
       renderer.preprocessSeries(groupedStackedSeriesList);
 
@@ -740,9 +725,7 @@ void main() {
     });
 
     test('with stacked bars - weightPattern not used', () {
-      renderer = makeRenderer(
-          config: BarRendererConfig(
-              groupingType: BarGroupingType.stacked, weightPattern: [2, 1]));
+      renderer = makeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.stacked, weightPattern: [2, 1]));
 
       renderer.preprocessSeries(seriesList);
 
@@ -807,16 +790,16 @@ void main() {
       // Helper to create series list for this test only.
       List<MutableSeries<String>> _createSeriesList(List<MyRow> data) {
         final domainAxis = MockAxis<dynamic>();
-        when(domainAxis.rangeBand).thenReturn(100.0);
-        when(domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
-        when(domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
-        when(domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
-        when(domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
+        when(() => domainAxis.rangeBand).thenReturn(100.0);
+        when(() => domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
+        when(() => domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
+        when(() => domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
+        when(() => domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
         final measureAxis = MockAxis<num>();
-        when(measureAxis.getLocation(0)).thenReturn(0.0);
-        when(measureAxis.getLocation(5)).thenReturn(5.0);
-        when(measureAxis.getLocation(75)).thenReturn(75.0);
-        when(measureAxis.getLocation(100)).thenReturn(100.0);
+        when(() => measureAxis.getLocation(0)).thenReturn(0.0);
+        when(() => measureAxis.getLocation(5)).thenReturn(5.0);
+        when(() => measureAxis.getLocation(75)).thenReturn(75.0);
+        when(() => measureAxis.getLocation(100)).thenReturn(100.0);
 
         final color = Color.fromHex(code: '#000000');
 
@@ -845,8 +828,7 @@ void main() {
       ];
       final seriesList = _createSeriesList(data);
 
-      final renderer =
-          makeFakeRenderer(config: BarRendererConfig(maxBarWidthPx: 40));
+      final renderer = makeFakeRenderer(config: BarRendererConfig(maxBarWidthPx: 40));
 
       renderer.preprocessSeries(seriesList);
       renderer.update(seriesList, false);
@@ -865,16 +847,16 @@ void main() {
       // Helper to create series list for this test only.
       List<MutableSeries<String>> _createSeriesList(List<MyRow> data) {
         final domainAxis = MockAxis<dynamic>();
-        when(domainAxis.rangeBand).thenReturn(100.0);
-        when(domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
-        when(domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
-        when(domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
-        when(domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
+        when(() => domainAxis.rangeBand).thenReturn(100.0);
+        when(() => domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
+        when(() => domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
+        when(() => domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
+        when(() => domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
         final measureAxis = MockAxis<num>();
-        when(measureAxis.getLocation(0)).thenReturn(0.0);
-        when(measureAxis.getLocation(5)).thenReturn(5.0);
-        when(measureAxis.getLocation(75)).thenReturn(75.0);
-        when(measureAxis.getLocation(100)).thenReturn(100.0);
+        when(() => measureAxis.getLocation(0)).thenReturn(0.0);
+        when(() => measureAxis.getLocation(5)).thenReturn(5.0);
+        when(() => measureAxis.getLocation(75)).thenReturn(75.0);
+        when(() => measureAxis.getLocation(100)).thenReturn(100.0);
 
         final color = Color.fromHex(code: '#000000');
 
@@ -911,8 +893,7 @@ void main() {
       ];
       final seriesListWithMeasures = _createSeriesList(myDataWithMeasures);
 
-      final renderer = makeFakeRenderer(
-          config: BarRendererConfig(groupingType: BarGroupingType.grouped));
+      final renderer = makeFakeRenderer(config: BarRendererConfig(groupingType: BarGroupingType.grouped));
 
       // Verify that only 3 bars are drawn for an initial draw with null data.
       renderer.preprocessSeries(seriesListWithNull);

@@ -1,5 +1,7 @@
 // @dart=2.9
 
+import 'package:charts_common/src/chart/cartesian/axis/axis_tick.dart';
+import 'package:charts_common/src/chart/cartesian/axis/tick.dart';
 // Copyright 2018 the Charts project authors. Please see the AUTHORS file
 // for details.
 //
@@ -18,8 +20,6 @@
 import 'package:charts_common/src/common/text_element.dart';
 import 'package:charts_common/src/common/text_measurement.dart';
 import 'package:charts_common/src/common/text_style.dart';
-import 'package:charts_common/src/chart/cartesian/axis/axis_tick.dart';
-import 'package:charts_common/src/chart/cartesian/axis/tick.dart';
 import 'package:test/test.dart';
 
 /// Fake [TextElement] for testing.
@@ -48,10 +48,7 @@ class FakeTextElement implements TextElement {
 
 /// Helper to create a tick for testing.
 Tick<String> _createTestTick(String value, double locationPx) {
-  return Tick(
-      value: value,
-      textElement: FakeTextElement(value),
-      locationPx: locationPx);
+  return Tick(value: value, textElement: FakeTextElement(value), locationPx: locationPx);
 }
 
 void _verify(Tick<String> tick, {double location, double opacity}) {

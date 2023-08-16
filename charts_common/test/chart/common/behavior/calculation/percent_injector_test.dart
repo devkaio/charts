@@ -17,12 +17,10 @@
 
 import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/common/base_chart.dart';
-import 'package:charts_common/src/chart/common/processed_series.dart'
-    show MutableSeries;
 import 'package:charts_common/src/chart/common/behavior/calculation/percent_injector.dart';
+import 'package:charts_common/src/chart/common/processed_series.dart' show MutableSeries;
 import 'package:charts_common/src/data/series.dart' show Series;
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -31,8 +29,7 @@ class MyRow {
   final int clickCount;
   final int clickCountLower;
   final int clickCountUpper;
-  MyRow(this.campaign, this.clickCount, this.clickCountLower,
-      this.clickCountUpper);
+  MyRow(this.campaign, this.clickCount, this.clickCountLower, this.clickCountUpper);
 }
 
 class MockChart extends Mock implements CartesianChart {
@@ -42,8 +39,7 @@ class MockChart extends Mock implements CartesianChart {
   bool vertical = true;
 
   @override
-  LifecycleListener addLifecycleListener(LifecycleListener listener) =>
-      lastLifecycleListener = listener;
+  LifecycleListener addLifecycleListener(LifecycleListener listener) => lastLifecycleListener = listener;
 
   @override
   bool removeLifecycleListener(LifecycleListener listener) {
@@ -57,8 +53,7 @@ void main() {
   MockChart _chart;
   List<MutableSeries<String>> seriesList;
 
-  PercentInjector _makeBehavior(
-      {PercentInjectorTotalType totalType = PercentInjectorTotalType.domain}) {
+  PercentInjector _makeBehavior({PercentInjectorTotalType totalType = PercentInjectorTotalType.domain}) {
     final behavior = PercentInjector(totalType: totalType);
 
     behavior.attachTo(_chart);

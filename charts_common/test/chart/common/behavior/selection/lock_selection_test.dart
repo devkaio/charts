@@ -21,8 +21,7 @@ import 'package:charts_common/src/chart/common/base_chart.dart';
 import 'package:charts_common/src/chart/common/behavior/selection/lock_selection.dart';
 import 'package:charts_common/src/chart/common/selection_model/selection_model.dart';
 import 'package:charts_common/src/common/gesture_listener.dart';
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChart extends Mock implements BaseChart {
@@ -51,10 +50,8 @@ void main() {
   MockSelectionModel _hoverSelectionModel;
   MockSelectionModel _clickSelectionModel;
 
-  LockSelection _makeLockSelectionBehavior(
-      SelectionModelType selectionModelType) {
-    LockSelection behavior =
-        LockSelection(selectionModelType: selectionModelType);
+  LockSelection _makeLockSelectionBehavior(SelectionModelType selectionModelType) {
+    LockSelection behavior = LockSelection(selectionModelType: selectionModelType);
 
     behavior.attachTo(_chart);
 
@@ -63,7 +60,7 @@ void main() {
 
   void _setupChart({Point<double> forPoint, bool isWithinRenderer}) {
     if (isWithinRenderer != null) {
-      when(_chart.pointWithinRenderer(forPoint)).thenReturn(isWithinRenderer);
+      when(() => _chart.pointWithinRenderer(forPoint)).thenReturn(isWithinRenderer);
     }
   }
 
@@ -72,10 +69,8 @@ void main() {
     _clickSelectionModel = MockSelectionModel();
 
     _chart = MockChart();
-    when(_chart.getSelectionModel(SelectionModelType.info))
-        .thenReturn(_hoverSelectionModel);
-    when(_chart.getSelectionModel(SelectionModelType.action))
-        .thenReturn(_clickSelectionModel);
+    when(() => _chart.getSelectionModel(SelectionModelType.info)).thenReturn(_hoverSelectionModel);
+    when(() => _chart.getSelectionModel(SelectionModelType.action)).thenReturn(_clickSelectionModel);
   });
 
   group('LockSelection trigger handling', () {
@@ -85,14 +80,14 @@ void main() {
       Point<double> point = Point(100.0, 100.0);
       _setupChart(forPoint: point, isWithinRenderer: true);
 
-      when(_hoverSelectionModel.hasAnySelection).thenReturn(true);
+      when(() => _hoverSelectionModel.hasAnySelection).thenReturn(true);
 
       // Act
       _chart.lastListener.onTapTest(point);
       _chart.lastListener.onTap(point);
 
       // Validate
-      verify(_hoverSelectionModel.hasAnySelection);
+      verify(() => _hoverSelectionModel.hasAnySelection);
       expect(_hoverSelectionModel.locked, equals(true));
       verifyNoMoreInteractions(_hoverSelectionModel);
       verifyNoMoreInteractions(_clickSelectionModel);
@@ -104,14 +99,14 @@ void main() {
       Point<double> point = Point(100.0, 100.0);
       _setupChart(forPoint: point, isWithinRenderer: true);
 
-      when(_hoverSelectionModel.hasAnySelection).thenReturn(true);
+      when(() => _hoverSelectionModel.hasAnySelection).thenReturn(true);
 
       // Act
       _chart.lastListener.onTapTest(point);
       _chart.lastListener.onTap(point);
 
       // Validate
-      verify(_hoverSelectionModel.hasAnySelection);
+      verify(() => _hoverSelectionModel.hasAnySelection);
       expect(_hoverSelectionModel.locked, equals(true));
 
       // Act
@@ -119,7 +114,7 @@ void main() {
       _chart.lastListener.onTap(point);
 
       // Validate
-      verify(_hoverSelectionModel.clearSelection());
+      verify(() => _hoverSelectionModel.clearSelection());
       expect(_hoverSelectionModel.locked, equals(false));
       verifyNoMoreInteractions(_hoverSelectionModel);
       verifyNoMoreInteractions(_clickSelectionModel);
@@ -131,14 +126,14 @@ void main() {
       Point<double> point = Point(100.0, 100.0);
       _setupChart(forPoint: point, isWithinRenderer: true);
 
-      when(_hoverSelectionModel.hasAnySelection).thenReturn(false);
+      when(() => _hoverSelectionModel.hasAnySelection).thenReturn(false);
 
       // Act
       _chart.lastListener.onTapTest(point);
       _chart.lastListener.onTap(point);
 
       // Validate
-      verify(_hoverSelectionModel.hasAnySelection);
+      verify(() => _hoverSelectionModel.hasAnySelection);
       expect(_hoverSelectionModel.locked, equals(false));
       verifyNoMoreInteractions(_hoverSelectionModel);
       verifyNoMoreInteractions(_clickSelectionModel);

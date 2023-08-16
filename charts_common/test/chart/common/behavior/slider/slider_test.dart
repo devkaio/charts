@@ -17,18 +17,17 @@
 
 import 'dart:math';
 
-import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
+import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/common/base_chart.dart';
+import 'package:charts_common/src/chart/common/behavior/selection/selection_trigger.dart';
+import 'package:charts_common/src/chart/common/behavior/slider/slider.dart';
 import 'package:charts_common/src/chart/common/datum_details.dart';
 import 'package:charts_common/src/chart/common/processed_series.dart';
-import 'package:charts_common/src/chart/common/behavior/slider/slider.dart';
-import 'package:charts_common/src/chart/common/behavior/selection/selection_trigger.dart';
 import 'package:charts_common/src/common/gesture_listener.dart';
 import 'package:charts_common/src/common/math.dart';
 import 'package:charts_common/src/data/series.dart';
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChart extends Mock implements CartesianChart {
@@ -52,8 +51,7 @@ class MockChart extends Mock implements CartesianChart {
   }
 
   @override
-  LifecycleListener addLifecycleListener(LifecycleListener listener) =>
-      lastLifecycleListener = listener;
+  LifecycleListener addLifecycleListener(LifecycleListener listener) => lastLifecycleListener = listener;
 
   @override
   bool removeLifecycleListener(LifecycleListener listener) {
@@ -98,33 +96,27 @@ void main() {
         initialDomainValue: initialDomainValue,
         onChangeCallback: onChangeCallback,
         snapToDatum: snapToDatum,
-        style: SliderStyle(
-            handleOffset: handleOffset, handlePosition: handlePosition));
+        style: SliderStyle(handleOffset: handleOffset, handlePosition: handlePosition));
 
     behavior.attachTo(_chart);
 
     tester = SliderTester(behavior);
 
     // Mock out chart layout by assigning bounds to the layout view.
-    tester.layout(
-        Rectangle<int>(0, 0, 200, 200), Rectangle<int>(0, 0, 200, 200));
+    tester.layout(Rectangle<int>(0, 0, 200, 200), Rectangle<int>(0, 0, 200, 200));
 
     return behavior;
   }
 
-  void _setupChart(
-      {Point<double> forPoint,
-      bool isWithinRenderer,
-      List<DatumDetails> respondWithDetails}) {
-    when(_chart.domainAxis).thenReturn(_domainAxis);
-    when(_chart.getMeasureAxis()).thenReturn(_measureAxis);
+  void _setupChart({Point<double> forPoint, bool isWithinRenderer, List<DatumDetails> respondWithDetails}) {
+    when(() => _chart.domainAxis).thenReturn(_domainAxis);
+    when(() => _chart.getMeasureAxis()).thenReturn(_measureAxis);
 
     if (isWithinRenderer != null) {
-      when(_chart.pointWithinRenderer(forPoint)).thenReturn(isWithinRenderer);
+      when(() => _chart.pointWithinRenderer(forPoint)).thenReturn(isWithinRenderer);
     }
     if (respondWithDetails != null) {
-      when(_chart.getNearestDatumDetailPerSeries(forPoint, true))
-          .thenReturn(respondWithDetails);
+      when(() => _chart.getNearestDatumDetailPerSeries(forPoint, true)).thenReturn(respondWithDetails);
     }
   }
 
@@ -135,65 +127,29 @@ void main() {
 
     _measureAxis = MockDomainAxis();
 
-    _series1 = MutableSeries(Series(
-        id: 'mySeries1',
-        data: [],
-        domainFn: (_, __) {},
-        measureFn: (_, __) => null));
+    _series1 = MutableSeries(Series(id: 'mySeries1', data: [], domainFn: (_, __) {}, measureFn: (_, __) => null));
 
-    _details1 = DatumDetails(
-        chartPosition: NullablePoint(20.0, 80.0),
-        datum: 'myDatum1',
-        domain: 1.0,
-        series: _series1,
-        domainDistance: 10.0,
-        measureDistance: 20.0);
-    _details2 = DatumDetails(
-        chartPosition: NullablePoint(40.0, 80.0),
-        datum: 'myDatum2',
-        domain: 2.0,
-        series: _series1,
-        domainDistance: 10.0,
-        measureDistance: 20.0);
-    _details3 = DatumDetails(
-        chartPosition: NullablePoint(90.0, 80.0),
-        datum: 'myDatum3',
-        domain: 4.5,
-        series: _series1,
-        domainDistance: 10.0,
-        measureDistance: 20.0);
+    _details1 = DatumDetails(chartPosition: NullablePoint(20.0, 80.0), datum: 'myDatum1', domain: 1.0, series: _series1, domainDistance: 10.0, measureDistance: 20.0);
+    _details2 = DatumDetails(chartPosition: NullablePoint(40.0, 80.0), datum: 'myDatum2', domain: 2.0, series: _series1, domainDistance: 10.0, measureDistance: 20.0);
+    _details3 = DatumDetails(chartPosition: NullablePoint(90.0, 80.0), datum: 'myDatum3', domain: 4.5, series: _series1, domainDistance: 10.0, measureDistance: 20.0);
   });
 
   group('Slider trigger handling', () {
     test('can listen to tap and drag', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.tapAndDrag,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20));
+      _makeBehavior(SelectionTrigger.tapAndDrag, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20));
 
       Point<double> startPoint = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 100.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -235,34 +191,19 @@ void main() {
 
     test('slider handle can render at top', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.tapAndDrag,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20),
-          handlePosition: SliderHandlePosition.top);
+      _makeBehavior(SelectionTrigger.tapAndDrag, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20), handlePosition: SliderHandlePosition.top);
 
       Point<double> startPoint = Point(100.0, 0.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 0.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 0.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 0.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -299,33 +240,19 @@ void main() {
 
     test('can listen to press hold', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.pressHold,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20));
+      _makeBehavior(SelectionTrigger.pressHold, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20));
 
       Point<double> startPoint = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 100.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -367,33 +294,19 @@ void main() {
 
     test('can listen to long press hold', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.longPressHold,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20));
+      _makeBehavior(SelectionTrigger.longPressHold, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20));
 
       Point<double> startPoint = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 100.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -435,33 +348,19 @@ void main() {
 
     test('no position update before long press', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.longPressHold,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20));
+      _makeBehavior(SelectionTrigger.longPressHold, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20));
 
       Point<double> startPoint = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 100.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -490,34 +389,19 @@ void main() {
 
     test('can snap to datum', () {
       // Setup chart matches point with single domain single series.
-      _makeBehavior(SelectionTrigger.tapAndDrag,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20),
-          snapToDatum: true);
+      _makeBehavior(SelectionTrigger.tapAndDrag, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20), snapToDatum: true);
 
       Point<double> startPoint = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: startPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: startPoint, isWithinRenderer: true, respondWithDetails: [_details1]);
 
       Point<double> updatePoint1 = Point(50.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint1,
-          isWithinRenderer: true,
-          respondWithDetails: [_details2]);
+      _setupChart(forPoint: updatePoint1, isWithinRenderer: true, respondWithDetails: [_details2]);
 
       Point<double> updatePoint2 = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: updatePoint2,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: updatePoint2, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       Point<double> endPoint = Point(120.0, 100.0);
-      _setupChart(
-          forPoint: endPoint,
-          isWithinRenderer: true,
-          respondWithDetails: [_details3]);
+      _setupChart(forPoint: endPoint, isWithinRenderer: true, respondWithDetails: [_details3]);
 
       // Act
       _chart.lastLifecycleListener.onAxisConfigured();
@@ -562,10 +446,7 @@ void main() {
   group('Slider manual control', () {
     test('can set domain position', () {
       // Setup chart matches point with single domain single series.
-      final slider = _makeBehavior(SelectionTrigger.tapAndDrag,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20),
-          initialDomainValue: 1.0);
+      final slider = _makeBehavior(SelectionTrigger.tapAndDrag, handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20), initialDomainValue: 1.0);
 
       _setupChart();
 
@@ -596,14 +477,10 @@ void main() {
       expect(tester.handleBounds, equals(Rectangle<int>(145, 90, 10, 20)));
     });
 
-    test('can set domain and measure position when handle position is manual',
-        () {
+    test('can set domain and measure position when handle position is manual', () {
       // Setup chart matches point with single domain single series.
       final slider = _makeBehavior(SelectionTrigger.tapAndDrag,
-          handleOffset: Point<double>(0.0, 0.0),
-          handleSize: Rectangle<int>(0, 0, 10, 20),
-          initialDomainValue: 1.0,
-          handlePosition: SliderHandlePosition.manual);
+          handleOffset: Point<double>(0.0, 0.0), handleSize: Rectangle<int>(0, 0, 10, 20), initialDomainValue: 1.0, handlePosition: SliderHandlePosition.manual);
 
       _setupChart();
 
@@ -641,10 +518,7 @@ void main() {
       Slider behavior = _makeBehavior(SelectionTrigger.tapAndDrag);
 
       Point<double> point = Point(100.0, 100.0);
-      _setupChart(
-          forPoint: point,
-          isWithinRenderer: true,
-          respondWithDetails: [_details1]);
+      _setupChart(forPoint: point, isWithinRenderer: true, respondWithDetails: [_details1]);
       expect(_chart.lastGestureListener, isNotNull);
 
       // Act

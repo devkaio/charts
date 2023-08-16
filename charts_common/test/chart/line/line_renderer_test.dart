@@ -1,5 +1,6 @@
 // @dart=2.9
 
+import 'package:charts_common/src/chart/common/processed_series.dart' show MutableSeries, ImmutableSeries;
 // Copyright 2018 the Charts project authors. Please see the AUTHORS file
 // for details.
 //
@@ -17,14 +18,10 @@
 
 import 'package:charts_common/src/chart/line/line_renderer.dart';
 import 'package:charts_common/src/chart/line/line_renderer_config.dart';
-import 'package:charts_common/src/chart/common/processed_series.dart'
-    show MutableSeries, ImmutableSeries;
 import 'package:charts_common/src/common/color.dart';
-import 'package:charts_common/src/common/material_palette.dart'
-    show MaterialPalette;
+import 'package:charts_common/src/common/material_palette.dart' show MaterialPalette;
 import 'package:charts_common/src/data/series.dart' show Series;
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -35,8 +32,7 @@ class MyRow {
   final Color color;
   final List<int> dashPattern;
   final double strokeWidthPx;
-  MyRow(this.campaignString, this.campaign, this.clickCount, this.color,
-      this.dashPattern, this.strokeWidthPx);
+  MyRow(this.campaignString, this.campaign, this.clickCount, this.color, this.dashPattern, this.strokeWidthPx);
 }
 
 class MockImmutableSeries<D> extends Mock implements ImmutableSeries<D> {
@@ -59,31 +55,23 @@ void main() {
   setUp(() {
     myFakeDesktopData = [
       MyRow('MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
-      MyRow(
-          'MyCampaign2', 2, 25, MaterialPalette.green.shadeDefault, null, 2.0),
+      MyRow('MyCampaign2', 2, 25, MaterialPalette.green.shadeDefault, null, 2.0),
       MyRow('MyCampaign3', 3, 100, MaterialPalette.red.shadeDefault, null, 2.0),
-      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.red.shadeDefault, null,
-          2.0),
+      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.red.shadeDefault, null, 2.0),
     ];
 
     myFakeTabletData = [
-      MyRow(
-          'MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, [2, 2], 2.0),
-      MyRow(
-          'MyCampaign2', 2, 25, MaterialPalette.blue.shadeDefault, [3, 3], 2.0),
-      MyRow('MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, [4, 4],
-          2.0),
-      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.blue.shadeDefault, [4, 4],
-          2.0),
+      MyRow('MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, [2, 2], 2.0),
+      MyRow('MyCampaign2', 2, 25, MaterialPalette.blue.shadeDefault, [3, 3], 2.0),
+      MyRow('MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, [4, 4], 2.0),
+      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.blue.shadeDefault, [4, 4], 2.0),
     ];
 
     myFakeMobileData = [
       MyRow('MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
       MyRow('MyCampaign2', 2, 25, MaterialPalette.blue.shadeDefault, null, 3.0),
-      MyRow(
-          'MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, null, 4.0),
-      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.blue.shadeDefault, null,
-          4.0),
+      MyRow('MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, null, 4.0),
+      MyRow('MyOtherCampaign', 4, 75, MaterialPalette.blue.shadeDefault, null, 4.0),
     ];
 
     numericSeriesList = [
@@ -141,8 +129,7 @@ void main() {
 
   group('preprocess', () {
     test('with numeric data and simple lines', () {
-      renderer =
-          LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
+      renderer = LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
 
       renderer.configureSeries(numericSeriesList);
       renderer.preprocessSeries(numericSeriesList);
@@ -205,8 +192,7 @@ void main() {
     });
 
     test('with numeric data and stacked lines', () {
-      renderer = LineRenderer<num>(
-          config: LineRendererConfig(stacked: true, strokeWidthPx: 2.0));
+      renderer = LineRenderer<num>(config: LineRendererConfig(stacked: true, strokeWidthPx: 2.0));
 
       renderer.configureSeries(numericSeriesList);
       renderer.preprocessSeries(numericSeriesList);
@@ -299,8 +285,7 @@ void main() {
             data: myFakeMobileData))
       ];
 
-      renderer =
-          LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
+      renderer = LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
 
       renderer.configureSeries(numericSeriesList);
       renderer.preprocessSeries(numericSeriesList);
@@ -406,22 +391,14 @@ void main() {
 
     test('with numeric data and repeats in style', () {
       var myFakeData = [
-        MyRow(
-            'MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
-        MyRow('MyCampaign2', 2, 25, MaterialPalette.green.shadeDefault, null,
-            2.0),
-        MyRow('MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, null,
-            2.0),
-        MyRow('MyCampaign4', 4, 75, MaterialPalette.green.shadeDefault, null,
-            2.0),
-        MyRow(
-            'MyCampaign1', 5, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
-        MyRow('MyCampaign2', 6, 25, MaterialPalette.green.shadeDefault, null,
-            2.0),
-        MyRow('MyCampaign3', 7, 100, MaterialPalette.blue.shadeDefault, null,
-            2.0),
-        MyRow('MyCampaign4', 8, 75, MaterialPalette.green.shadeDefault, null,
-            2.0),
+        MyRow('MyCampaign1', 1, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
+        MyRow('MyCampaign2', 2, 25, MaterialPalette.green.shadeDefault, null, 2.0),
+        MyRow('MyCampaign3', 3, 100, MaterialPalette.blue.shadeDefault, null, 2.0),
+        MyRow('MyCampaign4', 4, 75, MaterialPalette.green.shadeDefault, null, 2.0),
+        MyRow('MyCampaign1', 5, 5, MaterialPalette.blue.shadeDefault, null, 2.0),
+        MyRow('MyCampaign2', 6, 25, MaterialPalette.green.shadeDefault, null, 2.0),
+        MyRow('MyCampaign3', 7, 100, MaterialPalette.blue.shadeDefault, null, 2.0),
+        MyRow('MyCampaign4', 8, 75, MaterialPalette.green.shadeDefault, null, 2.0),
       ];
 
       numericSeriesList = [
@@ -436,8 +413,7 @@ void main() {
             data: myFakeData)),
       ];
 
-      renderer =
-          LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
+      renderer = LineRenderer<num>(config: LineRendererConfig(strokeWidthPx: 2.0));
 
       renderer.configureSeries(numericSeriesList);
       renderer.preprocessSeries(numericSeriesList);
@@ -492,8 +468,7 @@ void main() {
     });
 
     test('with ordinal data and simple lines', () {
-      renderer =
-          LineRenderer<String>(config: LineRendererConfig(strokeWidthPx: 2.0));
+      renderer = LineRenderer<String>(config: LineRendererConfig(strokeWidthPx: 2.0));
 
       renderer.configureSeries(ordinalSeriesList);
       renderer.preprocessSeries(ordinalSeriesList);

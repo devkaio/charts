@@ -18,22 +18,22 @@
 import 'dart:math';
 
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
-import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/base_tick_draw_strategy.dart';
 import 'package:charts_common/src/chart/cartesian/axis/collision_report.dart';
+import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/base_tick_draw_strategy.dart';
+import 'package:charts_common/src/chart/cartesian/axis/linear/bucketing_numeric_tick_provider.dart';
+import 'package:charts_common/src/chart/cartesian/axis/numeric_extents.dart';
 import 'package:charts_common/src/chart/cartesian/axis/numeric_scale.dart';
 import 'package:charts_common/src/chart/cartesian/axis/tick.dart';
 import 'package:charts_common/src/chart/cartesian/axis/tick_formatter.dart';
-import 'package:charts_common/src/chart/cartesian/axis/numeric_extents.dart';
-import 'package:charts_common/src/chart/cartesian/axis/linear/bucketing_numeric_tick_provider.dart';
 import 'package:charts_common/src/chart/common/chart_canvas.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/chart/common/unitconverter/unit_converter.dart';
 import 'package:charts_common/src/common/graphics_factory.dart';
 import 'package:charts_common/src/common/line_style.dart';
-import 'package:charts_common/src/common/text_style.dart';
 import 'package:charts_common/src/common/text_element.dart';
+import 'package:charts_common/src/common/text_style.dart';
 import 'package:meta/meta.dart' show required;
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockNumericScale extends Mock implements NumericScale {}
@@ -49,19 +49,14 @@ class FakeDrawStrategy extends BaseTickDrawStrategy<num> {
   final int collidesAfterTickCount;
   final int alternateRenderingAfterTickCount;
 
-  FakeDrawStrategy(
-      this.collidesAfterTickCount, this.alternateRenderingAfterTickCount)
-      : super(null, FakeGraphicsFactory());
+  FakeDrawStrategy(this.collidesAfterTickCount, this.alternateRenderingAfterTickCount) : super(null, FakeGraphicsFactory());
 
   @override
   CollisionReport<num> collides(List<Tick<num>> ticks, _) {
     final ticksCollide = ticks.length >= collidesAfterTickCount;
     final alternateTicksUsed = ticks.length >= alternateRenderingAfterTickCount;
 
-    return CollisionReport(
-        ticksCollide: ticksCollide,
-        ticks: ticks,
-        alternateTicksUsed: alternateTicksUsed);
+    return CollisionReport(ticksCollide: ticksCollide, ticks: ticks, alternateTicksUsed: alternateTicksUsed);
   }
 
   @override
@@ -134,10 +129,10 @@ void main() {
         ..setFixedTickCount(21)
         ..allowedSteps = [1.0, 2.5, 5.0];
       final drawStrategy = FakeDrawStrategy(10, 10);
-      when(scale.viewportDomain).thenReturn(NumericExtents(0.1, 0.7));
-      when(scale.rangeWidth).thenReturn(1000);
-      when(scale[0.1]).thenReturn(90.0);
-      when(scale[0]).thenReturn(100.0);
+      when(() => scale.viewportDomain).thenReturn(NumericExtents(0.1, 0.7));
+      when(() => scale.rangeWidth).thenReturn(1000);
+      when(() => scale[0.1]).thenReturn(90.0);
+      when(() => scale[0]).thenReturn(100.0);
 
       final ticks = tickProvider.getTicks(
           context: context,
@@ -172,8 +167,7 @@ void main() {
       expect(aboveThresholdTicks, hasLength(18));
 
       aboveThresholdTicks = ticks.sublist(2);
-      aboveThresholdTicks.retainWhere((tick) =>
-          tick.textElement.text != '' && !tick.textElement.text.contains('<'));
+      aboveThresholdTicks.retainWhere((tick) => tick.textElement.text != '' && !tick.textElement.text.contains('<'));
       expect(aboveThresholdTicks, hasLength(18));
 
       aboveThresholdTicks = ticks.sublist(2);

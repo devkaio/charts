@@ -15,18 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:charts_common/common.dart';
 import 'package:charts_common/src/chart/cartesian/axis/auto_adjusting_static_tick_provider.dart';
-import 'package:charts_common/src/chart/cartesian/axis/linear/linear_scale.dart';
+import 'package:charts_common/src/chart/cartesian/axis/collision_report.dart' show CollisionReport;
 import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/base_tick_draw_strategy.dart';
-import 'package:charts_common/src/common/graphics_factory.dart';
-import 'package:charts_common/src/common/text_element.dart';
-import 'package:charts_common/src/chart/common/chart_context.dart';
+import 'package:charts_common/src/chart/cartesian/axis/linear/linear_scale.dart';
 import 'package:charts_common/src/chart/cartesian/axis/scale.dart';
-import 'package:charts_common/src/chart/cartesian/axis/collision_report.dart'
-    show CollisionReport;
 import 'package:charts_common/src/chart/cartesian/axis/spec/tick_spec.dart';
 import 'package:charts_common/src/chart/cartesian/axis/tick_formatter.dart';
-import 'package:mockito/mockito.dart';
+import 'package:charts_common/src/chart/common/chart_context.dart';
+import 'package:charts_common/src/common/graphics_factory.dart';
+import 'package:charts_common/src/common/text_element.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChartContext extends Mock implements ChartContext {}
@@ -41,8 +41,7 @@ class FakeNumericTickFormatter implements TickFormatter<num> {
   int calledTimes = 0;
 
   @override
-  List<String> format(List<num> tickValues, Map<num, String> cache,
-      {num stepSize}) {
+  List<String> format(List<num> tickValues, Map<num, String> cache, {num stepSize}) {
     calledTimes += 1;
 
     return tickValues.map((value) => value.toString()).toList();
@@ -65,20 +64,14 @@ void main() {
     drawStrategy = MockDrawStrategy<num>();
     scale = LinearScale()..range = ScaleOutputExtent(0, 300);
 
-    when(graphicsFactory.createTextElement(any)).thenReturn(MockTextElement());
+    when(() => graphicsFactory.createTextElement(any())).thenReturn(MockTextElement());
+    registerFallbackValue(AxisOrientation.bottom);
   });
 
   group('with tick increment', () {
     test('returns the first increment if there is no collision', () {
-      final tickProvider = AutoAdjustingStaticTickProvider<num>([
-        TickSpec<num>(1, label: '1'),
-        TickSpec<num>(2, label: '2'),
-        TickSpec<num>(3, label: '3')
-      ], [
-        1,
-        2
-      ]);
-      when(drawStrategy.collides(any, any)).thenReturn(CollisionReport.empty());
+      final tickProvider = AutoAdjustingStaticTickProvider<num>([TickSpec<num>(1, label: '1'), TickSpec<num>(2, label: '2'), TickSpec<num>(3, label: '3')], [1, 2]);
+      when(() => drawStrategy.collides(any(), any())).thenReturn(CollisionReport.empty());
 
       final ticks = tickProvider.getTicks(
           context: context,
@@ -93,18 +86,9 @@ void main() {
     });
 
     test('returns the first non colliding increment', () {
-      final tickProvider = AutoAdjustingStaticTickProvider<num>([
-        TickSpec<num>(1, label: '1'),
-        TickSpec<num>(2, label: '2'),
-        TickSpec<num>(3, label: '3')
-      ], [
-        1,
-        2
-      ]);
-      when(drawStrategy.collides(any, any)).thenAnswer((invocation) =>
-          (invocation.positionalArguments.first as List).length == 3
-              ? CollisionReport(ticksCollide: true, ticks: [])
-              : CollisionReport.empty());
+      final tickProvider = AutoAdjustingStaticTickProvider<num>([TickSpec<num>(1, label: '1'), TickSpec<num>(2, label: '2'), TickSpec<num>(3, label: '3')], [1, 2]);
+      when(() => drawStrategy.collides(any(), any()))
+          .thenAnswer((invocation) => (invocation.positionalArguments.first as List).length == 3 ? CollisionReport(ticksCollide: true, ticks: []) : CollisionReport.empty());
 
       final ticks = tickProvider.getTicks(
           context: context,

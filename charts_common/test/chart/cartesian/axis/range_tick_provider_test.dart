@@ -25,7 +25,7 @@ import 'package:charts_common/src/chart/cartesian/axis/tick_formatter.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/common/graphics_factory.dart';
 import 'package:charts_common/src/common/text_element.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockChartContext extends Mock implements ChartContext {}
@@ -40,8 +40,7 @@ class FakeNumericTickFormatter implements TickFormatter<num> {
   int calledTimes = 0;
 
   @override
-  List<String> format(List<num> tickValues, Map<num, String> cache,
-      {num stepSize}) {
+  List<String> format(List<num> tickValues, Map<num, String> cache, {num stepSize}) {
     calledTimes += 1;
 
     return tickValues.map((value) => value.toString()).toList();
@@ -64,7 +63,7 @@ void main() {
     drawStrategy = MockDrawStrategy<num>();
     scale = LinearScale()..range = ScaleOutputExtent(0, 300);
 
-    when(graphicsFactory.createTextElement(any)).thenReturn(MockTextElement());
+    when(() => graphicsFactory.createTextElement(any())).thenReturn(MockTextElement());
   });
 
   group('scale is extended with range tick values', () {

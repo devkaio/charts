@@ -18,8 +18,7 @@
 import 'dart:math';
 
 import 'package:charts_common/common.dart';
-import 'package:mockito/mockito.dart';
-
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -31,8 +30,7 @@ class MyRow {
   final double boundsRadius;
   final String shape;
 
-  MyRow(this.campaignString, this.campaign, this.clickCount, this.radius,
-      this.boundsRadius, this.shape);
+  MyRow(this.campaignString, this.campaign, this.clickCount, this.radius, this.boundsRadius, this.shape);
 }
 
 class MockNumericAxis extends Mock implements Axis<num> {}
@@ -59,16 +57,14 @@ void main() {
 
     // Mock the Domain axis results.
     final domainAxis = MockNumericAxis();
-    when(domainAxis.rangeBand).thenReturn(100.0);
+    when(() => domainAxis.rangeBand).thenReturn(100.0);
 
-    when(domainAxis.getLocation(any))
-        .thenAnswer((input) => 1.0 * (input.positionalArguments.first as num));
+    when(() => domainAxis.getLocation(any())).thenAnswer((input) => 1.0 * (input.positionalArguments.first as num));
     series.setAttr(domainAxisKey, domainAxis);
 
     // Mock the Measure axis results.
     final measureAxis = MockNumericAxis();
-    when(measureAxis.getLocation(any))
-        .thenAnswer((input) => 1.0 * (input.positionalArguments.first as num));
+    when(() => measureAxis.getLocation(any())).thenAnswer((input) => 1.0 * (input.positionalArguments.first as num));
     series.setAttr(measureAxisKey, measureAxis);
 
     return series;
@@ -83,8 +79,7 @@ void main() {
         'with both selectOverlappingPoints and selectOverlappingPoints set to '
         'false', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -99,9 +94,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(10, 20), false, layout,
-          selectExactEventLocation: false, selectOverlappingPoints: false);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(10, 20), false, layout, selectExactEventLocation: false, selectOverlappingPoints: false);
 
       // Only the point nearest to the event location returned.
       expect(details.length, equals(1));
@@ -112,8 +105,7 @@ void main() {
         'with both selectOverlappingPoints and selectOverlappingPoints set to '
         'true and there are points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -128,9 +120,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(13, 23), false, layout,
-          selectExactEventLocation: true, selectOverlappingPoints: true);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(13, 23), false, layout, selectExactEventLocation: true, selectOverlappingPoints: true);
 
       // Return only points inside the event location and skip other.
       expect(details.length, equals(2));
@@ -142,8 +132,7 @@ void main() {
         'with both selectOverlappingPoints and selectOverlappingPoints set to '
         'true and there are NO points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -158,9 +147,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(5, 10), false, layout,
-          selectExactEventLocation: true, selectOverlappingPoints: true);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(5, 10), false, layout, selectExactEventLocation: true, selectOverlappingPoints: true);
 
       // Since there are no points inside event, empty list is returned.
       expect(details.length, equals(0));
@@ -168,11 +155,9 @@ void main() {
 
     test(
         'with both selectOverlappingPoints == true and '
-        'selectOverlappingPoints == false and there are points inside event',
-        () {
+        'selectOverlappingPoints == false and there are points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -187,9 +172,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(13, 23), false, layout,
-          selectExactEventLocation: false, selectOverlappingPoints: true);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(13, 23), false, layout, selectExactEventLocation: false, selectOverlappingPoints: true);
 
       // Points inside the event location are returned.
       expect(details.length, equals(2));
@@ -199,11 +182,9 @@ void main() {
 
     test(
         'with both selectOverlappingPoints == true and '
-        'selectOverlappingPoints == false and there are NO points inside event',
-        () {
+        'selectOverlappingPoints == false and there are NO points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -218,9 +199,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(5, 10), false, layout,
-          selectExactEventLocation: false, selectOverlappingPoints: true);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(5, 10), false, layout, selectExactEventLocation: false, selectOverlappingPoints: true);
 
       // There are no points inside, so single nearest point is returned.
       expect(details.length, equals(1));
@@ -229,11 +208,9 @@ void main() {
 
     test(
         'with both selectOverlappingPoints == false and '
-        'selectOverlappingPoints == true and there are points inside event',
-        () {
+        'selectOverlappingPoints == true and there are points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -248,9 +225,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(13, 23), false, layout,
-          selectExactEventLocation: true, selectOverlappingPoints: false);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(13, 23), false, layout, selectExactEventLocation: true, selectOverlappingPoints: false);
 
       // Only the nearest point from inside event location is returned.
       expect(details.length, equals(1));
@@ -259,11 +234,9 @@ void main() {
 
     test(
         'with both selectOverlappingPoints == false and '
-        'selectOverlappingPoints == true and there are NO points inside event',
-        () {
+        'selectOverlappingPoints == true and there are NO points inside event', () {
       // Setup
-      final renderer = PointRenderer(config: PointRendererConfig())
-        ..layout(layout, layout);
+      final renderer = PointRenderer(config: PointRendererConfig())..layout(layout, layout);
       final seriesList = <MutableSeries<num>>[
         _makeSeries(id: 'foo')
           ..data.addAll(<MyRow>[
@@ -278,9 +251,7 @@ void main() {
       renderer.paint(MockCanvas(), 1.0);
 
       // Act
-      final details = renderer.getNearestDatumDetailPerSeries(
-          Point(5, 10), false, layout,
-          selectExactEventLocation: true, selectOverlappingPoints: false);
+      final details = renderer.getNearestDatumDetailPerSeries(Point(5, 10), false, layout, selectExactEventLocation: true, selectOverlappingPoints: false);
 
       // No points inside event, so empty list is returned.
       expect(details.length, equals(0));

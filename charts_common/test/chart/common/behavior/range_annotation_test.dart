@@ -17,19 +17,20 @@
 
 import 'dart:math' show Rectangle;
 
+import 'package:charts_common/common.dart';
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
 import 'package:charts_common/src/chart/cartesian/axis/collision_report.dart';
 import 'package:charts_common/src/chart/cartesian/axis/draw_strategy/tick_draw_strategy.dart';
 import 'package:charts_common/src/chart/cartesian/axis/numeric_tick_provider.dart';
 import 'package:charts_common/src/chart/cartesian/axis/tick.dart';
 import 'package:charts_common/src/chart/common/base_chart.dart';
-import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/chart/common/behavior/range_annotation.dart';
+import 'package:charts_common/src/chart/common/chart_context.dart';
 import 'package:charts_common/src/chart/line/line_chart.dart';
 import 'package:charts_common/src/common/graphics_factory.dart';
 import 'package:charts_common/src/common/material_palette.dart';
 import 'package:charts_common/src/data/series.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 class MockContext extends Mock implements ChartContext {}
@@ -74,6 +75,10 @@ class MockGraphicsFactory extends Mock implements GraphicsFactory {}
 
 class MockTickDrawStrategy extends Mock implements TickDrawStrategy<num> {}
 
+class MockNumericScale extends Mock implements NumericScale {}
+
+class MockTickFormatter extends Mock implements TickFormatter<num> {}
+
 void main() {
   Rectangle<int> drawBounds;
   Rectangle<int> domainAxisBounds;
@@ -103,8 +108,8 @@ void main() {
     final chart = ConcreteChart();
 
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     chart.context = context;
 
     return chart;
@@ -112,24 +117,22 @@ void main() {
 
   /// Initializes the [chart], draws the [seriesList], and configures mock axis
   /// layout bounds.
-  void _drawSeriesList(
-      ConcreteChart chart, List<Series<MyRow, int>> seriesList) {
+  void _drawSeriesList(ConcreteChart chart, List<Series<MyRow, int>> seriesList) {
     var graphicsFactory = MockGraphicsFactory();
     var drawStrategy = MockTickDrawStrategy();
     var tickProvider = MockTickProvider();
     var ticks = <Tick<num>>[];
-    when(tickProvider.getTicks(
-      context: anyNamed('context'),
-      graphicsFactory: anyNamed('graphicsFactory'),
-      scale: anyNamed('scale'),
-      formatter: anyNamed('formatter'),
-      formatterValueCache: anyNamed('formatterValueCache'),
-      tickDrawStrategy: anyNamed('tickDrawStrategy'),
-      orientation: anyNamed('orientation'),
-      viewportExtensionEnabled: anyNamed('viewportExtensionEnabled'),
-    )).thenReturn(ticks);
-    when(drawStrategy.collides(ticks, any)).thenReturn(CollisionReport<num>(
-        ticks: [], ticksCollide: false, alternateTicksUsed: false));
+    when(() => tickProvider.getTicks(
+          context: any(named: 'context'),
+          graphicsFactory: any(named: 'graphicsFactory'),
+          scale: any(named: 'scale'),
+          formatter: any(named: 'formatter'),
+          formatterValueCache: any(named: 'formatterValueCache'),
+          tickDrawStrategy: any(named: 'tickDrawStrategy'),
+          orientation: any(named: 'orientation'),
+          viewportExtensionEnabled: any(named: 'viewportExtensionEnabled'),
+        )).thenReturn(ticks);
+    when(() => drawStrategy.collides(ticks, any())).thenReturn(CollisionReport<num>(ticks: [], ticksCollide: false, alternateTicksUsed: false));
 
     _chart.domainAxis
       ..autoViewport = true
@@ -158,55 +161,40 @@ void main() {
     drawBounds = Rectangle<int>(0, 0, 100, 100);
     domainAxisBounds = Rectangle<int>(0, 0, 100, 100);
     measureAxisBounds = Rectangle<int>(0, 0, 100, 100);
+    registerFallbackValue(MockContext());
+    registerFallbackValue(MockGraphicsFactory());
+    registerFallbackValue(MockNumericScale());
+    registerFallbackValue(MockTickFormatter());
+    registerFallbackValue(MockTickDrawStrategy());
+    registerFallbackValue(AxisOrientation.bottom);
   });
 
   setUp(() {
     _chart = _makeChart();
 
     _series1 = Series<MyRow, int>(
-        id: 's1',
-        data: [_s1D1, _s1D2, _s1D3],
-        domainFn: (row, _) => row.campaign,
-        measureFn: (row, _) => row.count,
-        colorFn: (_, __) => MaterialPalette.blue.shadeDefault);
+        id: 's1', data: [_s1D1, _s1D2, _s1D3], domainFn: (row, _) => row.campaign, measureFn: (row, _) => row.count, colorFn: (_, __) => MaterialPalette.blue.shadeDefault);
 
     _series2 = Series<MyRow, int>(
-        id: 's2',
-        data: [_s2D1, _s2D2, _s2D3],
-        domainFn: (row, _) => row.campaign,
-        measureFn: (row, _) => row.count,
-        colorFn: (_, __) => MaterialPalette.red.shadeDefault);
+        id: 's2', data: [_s2D1, _s2D2, _s2D3], domainFn: (row, _) => row.campaign, measureFn: (row, _) => row.count, colorFn: (_, __) => MaterialPalette.red.shadeDefault);
 
     _annotations1 = [
-      RangeAnnotationSegment(1, 2, RangeAnnotationAxisType.domain,
-          startLabel: 'Ann 1'),
-      RangeAnnotationSegment(4, 5, RangeAnnotationAxisType.domain,
-          color: MaterialPalette.gray.shade200, endLabel: 'Ann 2'),
-      RangeAnnotationSegment(5, 5.5, RangeAnnotationAxisType.measure,
-          startLabel: 'Really long tick start label',
-          endLabel: 'Really long tick end label'),
-      RangeAnnotationSegment(10, 15, RangeAnnotationAxisType.measure,
-          startLabel: 'Ann 4 Start', endLabel: 'Ann 4 End'),
-      RangeAnnotationSegment(16, 22, RangeAnnotationAxisType.measure,
-          startLabel: 'Ann 5 Start', endLabel: 'Ann 5 End'),
+      RangeAnnotationSegment(1, 2, RangeAnnotationAxisType.domain, startLabel: 'Ann 1'),
+      RangeAnnotationSegment(4, 5, RangeAnnotationAxisType.domain, color: MaterialPalette.gray.shade200, endLabel: 'Ann 2'),
+      RangeAnnotationSegment(5, 5.5, RangeAnnotationAxisType.measure, startLabel: 'Really long tick start label', endLabel: 'Really long tick end label'),
+      RangeAnnotationSegment(10, 15, RangeAnnotationAxisType.measure, startLabel: 'Ann 4 Start', endLabel: 'Ann 4 End'),
+      RangeAnnotationSegment(16, 22, RangeAnnotationAxisType.measure, startLabel: 'Ann 5 Start', endLabel: 'Ann 5 End'),
     ];
 
     _annotations2 = [
       RangeAnnotationSegment(1, 2, RangeAnnotationAxisType.domain),
-      RangeAnnotationSegment(4, 5, RangeAnnotationAxisType.domain,
-          color: MaterialPalette.gray.shade200),
-      RangeAnnotationSegment(8, 10, RangeAnnotationAxisType.domain,
-          color: MaterialPalette.gray.shade300),
+      RangeAnnotationSegment(4, 5, RangeAnnotationAxisType.domain, color: MaterialPalette.gray.shade200),
+      RangeAnnotationSegment(8, 10, RangeAnnotationAxisType.domain, color: MaterialPalette.gray.shade300),
     ];
 
     _annotations3 = [
-      LineAnnotationSegment(1, RangeAnnotationAxisType.measure,
-          startLabel: 'Ann 1 Start', endLabel: 'Ann 1 End'),
-      LineAnnotationSegment(4, RangeAnnotationAxisType.measure,
-          startLabel: 'Ann 2 Start',
-          endLabel: 'Ann 2 End',
-          color: MaterialPalette.gray.shade200,
-          dashPattern: _dashPattern),
+      LineAnnotationSegment(1, RangeAnnotationAxisType.measure, startLabel: 'Ann 1 Start', endLabel: 'Ann 1 End'),
+      LineAnnotationSegment(4, RangeAnnotationAxisType.measure, startLabel: 'Ann 2 Start', endLabel: 'Ann 2 End', color: MaterialPalette.gray.shade200, dashPattern: _dashPattern),
     ];
   });
 

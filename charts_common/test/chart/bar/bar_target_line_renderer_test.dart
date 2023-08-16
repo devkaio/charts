@@ -16,20 +16,19 @@
 // limitations under the License.
 
 import 'dart:math' show Point, Rectangle;
+
 import 'package:charts_common/src/chart/bar/bar_target_line_renderer.dart';
 import 'package:charts_common/src/chart/bar/bar_target_line_renderer_config.dart';
 import 'package:charts_common/src/chart/bar/base_bar_renderer.dart';
 import 'package:charts_common/src/chart/bar/base_bar_renderer_config.dart';
-import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/cartesian/axis/axis.dart';
+import 'package:charts_common/src/chart/cartesian/cartesian_chart.dart';
 import 'package:charts_common/src/chart/common/chart_canvas.dart';
 import 'package:charts_common/src/chart/common/chart_context.dart';
-import 'package:charts_common/src/chart/common/processed_series.dart'
-    show MutableSeries;
+import 'package:charts_common/src/chart/common/processed_series.dart' show MutableSeries;
 import 'package:charts_common/src/common/color.dart';
 import 'package:charts_common/src/data/series.dart' show Series;
-
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 /// Datum/Row for the chart.
@@ -45,14 +44,7 @@ class MockCanvas extends Mock implements ChartCanvas {
   final drawLinePointsList = <List<Point>>[];
 
   @override
-  void drawLine(
-      {List<Point> points,
-      Rectangle<num> clipBounds,
-      Color fill,
-      Color stroke,
-      bool roundEndCaps,
-      double strokeWidthPx,
-      List<int> dashPattern}) {
+  void drawLine({List<Point> points, Rectangle<num> clipBounds, Color fill, Color stroke, bool roundEndCaps, double strokeWidthPx, List<int> dashPattern}) {
     drawLinePointsList.add(points);
   }
 }
@@ -68,14 +60,13 @@ void main() {
   /////////////////////////////////////////
   // Convenience methods for creating mocks.
   /////////////////////////////////////////
-  BaseBarRenderer _configureBaseRenderer(
-      BaseBarRenderer renderer, bool vertical) {
+  BaseBarRenderer _configureBaseRenderer(BaseBarRenderer renderer, bool vertical) {
     final context = MockContext();
-    when(context.chartContainerIsRtl).thenReturn(false);
-    when(context.isRtl).thenReturn(false);
+    when(() => context.chartContainerIsRtl).thenReturn(false);
+    when(() => context.isRtl).thenReturn(false);
     final verticalChart = MockChart();
-    when(verticalChart.vertical).thenReturn(vertical);
-    when(verticalChart.context).thenReturn(context);
+    when(() => verticalChart.vertical).thenReturn(vertical);
+    when(() => verticalChart.context).thenReturn(context);
     renderer.onAttach(verticalChart);
 
     return renderer;
@@ -111,31 +102,17 @@ void main() {
 
     seriesList = [
       MutableSeries<String>(Series<MyRow, String>(
-          id: 'Desktop',
-          domainFn: (MyRow row, _) => row.campaign,
-          measureFn: (MyRow row, _) => row.clickCount,
-          measureOffsetFn: (MyRow row, _) => 0,
-          data: myFakeDesktopData)),
+          id: 'Desktop', domainFn: (MyRow row, _) => row.campaign, measureFn: (MyRow row, _) => row.clickCount, measureOffsetFn: (MyRow row, _) => 0, data: myFakeDesktopData)),
       MutableSeries<String>(Series<MyRow, String>(
-          id: 'Tablet',
-          domainFn: (MyRow row, _) => row.campaign,
-          measureFn: (MyRow row, _) => row.clickCount,
-          measureOffsetFn: (MyRow row, _) => 0,
-          data: myFakeTabletData)),
+          id: 'Tablet', domainFn: (MyRow row, _) => row.campaign, measureFn: (MyRow row, _) => row.clickCount, measureOffsetFn: (MyRow row, _) => 0, data: myFakeTabletData)),
       MutableSeries<String>(Series<MyRow, String>(
-          id: 'Mobile',
-          domainFn: (MyRow row, _) => row.campaign,
-          measureFn: (MyRow row, _) => row.clickCount,
-          measureOffsetFn: (MyRow row, _) => 0,
-          data: myFakeMobileData))
+          id: 'Mobile', domainFn: (MyRow row, _) => row.campaign, measureFn: (MyRow row, _) => row.clickCount, measureOffsetFn: (MyRow row, _) => 0, data: myFakeMobileData))
     ];
   });
 
   group('preprocess', () {
     test('with grouped bar target lines', () {
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.grouped));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.grouped));
 
       renderer.preprocessSeries(seriesList);
 
@@ -197,9 +174,7 @@ void main() {
     });
 
     test('with stacked bar target lines', () {
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.stacked));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.stacked));
 
       renderer.preprocessSeries(seriesList);
 
@@ -270,9 +245,7 @@ void main() {
 
       seriesList[0].data[2] = MyRow('MyCampaign3', 0);
 
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.stacked));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.stacked));
 
       renderer.preprocessSeries(seriesList);
 
@@ -370,9 +343,7 @@ void main() {
   });
 
   test('with stroke width target lines', () {
-    renderer = makeRenderer(
-        config: BarTargetLineRendererConfig(
-            groupingType: BarGroupingType.grouped, strokeWidthPx: 5.0));
+    renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.grouped, strokeWidthPx: 5.0));
 
     renderer.preprocessSeries(seriesList);
 
@@ -431,9 +402,7 @@ void main() {
 
   group('preprocess with weight pattern', () {
     test('with grouped bar target lines', () {
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.grouped, weightPattern: [3, 2, 1]));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.grouped, weightPattern: [3, 2, 1]));
 
       renderer.preprocessSeries(seriesList);
 
@@ -499,9 +468,7 @@ void main() {
     });
 
     test('with stacked bar target lines - weightPattern not used', () {
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.stacked, weightPattern: [2, 1]));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.stacked, weightPattern: [2, 1]));
 
       renderer.preprocessSeries(seriesList);
 
@@ -571,16 +538,16 @@ void main() {
       // Helper to create series list for this test only.
       List<MutableSeries<String>> _createSeriesList(List<MyRow> data) {
         final domainAxis = MockAxis<dynamic>();
-        when(domainAxis.rangeBand).thenReturn(100.0);
-        when(domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
-        when(domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
-        when(domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
-        when(domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
+        when(() => domainAxis.rangeBand).thenReturn(100.0);
+        when(() => domainAxis.getLocation('MyCampaign1')).thenReturn(20.0);
+        when(() => domainAxis.getLocation('MyCampaign2')).thenReturn(40.0);
+        when(() => domainAxis.getLocation('MyCampaign3')).thenReturn(60.0);
+        when(() => domainAxis.getLocation('MyOtherCampaign')).thenReturn(80.0);
         final measureAxis = MockAxis<num>();
-        when(measureAxis.getLocation(0)).thenReturn(0.0);
-        when(measureAxis.getLocation(5)).thenReturn(5.0);
-        when(measureAxis.getLocation(75)).thenReturn(75.0);
-        when(measureAxis.getLocation(100)).thenReturn(100.0);
+        when(() => measureAxis.getLocation(0)).thenReturn(0.0);
+        when(() => measureAxis.getLocation(5)).thenReturn(5.0);
+        when(() => measureAxis.getLocation(75)).thenReturn(75.0);
+        when(() => measureAxis.getLocation(100)).thenReturn(100.0);
 
         final color = Color.fromHex(code: '#000000');
 
@@ -617,9 +584,7 @@ void main() {
       ];
       final seriesListWithMeasures = _createSeriesList(myDataWithMeasures);
 
-      renderer = makeRenderer(
-          config: BarTargetLineRendererConfig(
-              groupingType: BarGroupingType.grouped));
+      renderer = makeRenderer(config: BarTargetLineRendererConfig(groupingType: BarGroupingType.grouped));
 
       // Verify that only 3 lines are drawn for an initial draw with null data.
       renderer.preprocessSeries(seriesListWithNull);
