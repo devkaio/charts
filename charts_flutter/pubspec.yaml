@@ -10,7 +10,10 @@ environment:
 
 dependencies:
   charts_common:
-    path: ../charts_common/
+    git:
+      url: https://github.com/devkaio/charts.git
+      ref: master
+      path: charts_common
   collection: ^1.14.5
   flutter:
     sdk: flutter
