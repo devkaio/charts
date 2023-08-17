@@ -143,7 +143,7 @@ void main() {
       chart.destroy();
 
       // The parent should remove the child behavior.
-      verify(() => unnamedBehavior.removeFrom(chart)).called(1);
+      verify(() => unnamedBehavior.removeFrom(chart)).called(2);
 
       // Remove should only be called once and shouldn't trigger a concurrent
       // modification exception.

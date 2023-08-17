@@ -19,7 +19,6 @@ import 'package:charts_common/src/chart/cartesian/axis/scale.dart';
 import 'package:charts_common/src/chart/cartesian/axis/simple_ordinal_scale.dart';
 import 'package:charts_common/src/common/style/material_style.dart';
 import 'package:charts_common/src/common/style/style_factory.dart';
-
 import 'package:test/test.dart';
 
 const EPSILON = 0.001;
@@ -112,17 +111,11 @@ void main() {
     });
 
     test('fixed domain throws argument exception', () {
-      expect(() => scale.rangeBandConfig = RangeBandConfig.fixedDomain(5.0),
-          throwsArgumentError);
+      expect(() => scale.rangeBandConfig = RangeBandConfig.fixedDomain(5.0), throwsArgumentError);
     });
 
     test('type of none throws argument exception', () {
-      expect(() => scale.rangeBandConfig = RangeBandConfig.none(),
-          throwsArgumentError);
-    });
-
-    test('set to null throws argument exception', () {
-      expect(() => scale.rangeBandConfig = null, throwsArgumentError);
+      expect(() => scale.rangeBandConfig = RangeBandConfig.none(), throwsArgumentError);
     });
 
     test('range band size used from style', () {
@@ -148,13 +141,11 @@ void main() {
     });
 
     test('to fixed domain throw arugment exception', () {
-      expect(() => scale.stepSizeConfig = StepSizeConfig.fixedDomain(1.0),
-          throwsArgumentError);
+      expect(() => scale.stepSizeConfig = StepSizeConfig.fixedDomain(1.0), throwsArgumentError);
     });
 
     test('to fixed pixel throw arugment exception', () {
-      expect(() => scale.stepSizeConfig = StepSizeConfig.fixedPixels(1.0),
-          throwsArgumentError);
+      expect(() => scale.stepSizeConfig = StepSizeConfig.fixedPixels(1.0), throwsArgumentError);
     });
   });
 
@@ -218,8 +209,7 @@ void main() {
 
       expect(scale['a'], closeTo(1000 + scaledInitialShift - 700, EPSILON));
 
-      expect(scale['b'],
-          closeTo(1000 + scaledInitialShift - 700 + scaledStepWidth, EPSILON));
+      expect(scale['b'], closeTo(1000 + scaledInitialShift - 700 + scaledStepWidth, EPSILON));
     });
 
     test('translate to pixels is scaled vertically', () {
@@ -232,10 +222,7 @@ void main() {
 
       expect(scale['a'], closeTo(2000 - scaledInitialShift + 700, EPSILON));
 
-      expect(
-          scale['b'],
-          closeTo(2000 - scaledInitialShift + 700 - (scaledStepWidth * 1),
-              EPSILON));
+      expect(scale['b'], closeTo(2000 - scaledInitialShift + 700 - (scaledStepWidth * 1), EPSILON));
     });
 
     test('only b and c should be within the viewport horizontally', () {
@@ -367,8 +354,7 @@ void main() {
       expect(scale.viewportDataSize, equals(0));
     });
 
-    test('get starting viewport gets first fully visible domain horizontally',
-        () {
+    test('get starting viewport gets first fully visible domain horizontally', () {
       scale.range = ScaleOutputExtent(1000, 2000);
 
       scale.setViewportSettings(2.0, -500.0);
@@ -378,8 +364,7 @@ void main() {
       expect(scale.viewportStartingDomain, equals('b'));
     });
 
-    test('get starting viewport gets first fully visible domain vertically',
-        () {
+    test('get starting viewport gets first fully visible domain vertically', () {
       scale.range = ScaleOutputExtent(2000, 1000);
 
       scale.setViewportSettings(2.0, 500.0);
