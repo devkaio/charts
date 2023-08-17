@@ -31,17 +31,14 @@ class PieChart<D> extends BaseChart<D> {
     rightSpec: MarginSpec.fromPixel(minPixel: 20),
   );
 
-  PieChart({LayoutConfig? layoutConfig})
-      : super(layoutConfig: layoutConfig ?? _defaultLayoutConfig);
+  PieChart({LayoutConfig? layoutConfig}) : super(layoutConfig: layoutConfig ?? _defaultLayoutConfig);
 
   @override
-  void drawInternal(List<MutableSeries<D>> seriesList,
-      {bool? skipAnimation, bool? skipLayout}) {
+  void drawInternal(List<MutableSeries<D>> seriesList, {bool? skipAnimation, bool? skipLayout}) {
     if (seriesList.length > 1) {
       throw ArgumentError('PieChart can only render a single series');
     }
-    super.drawInternal(seriesList,
-        skipAnimation: skipAnimation, skipLayout: skipLayout);
+    super.drawInternal(seriesList, skipAnimation: skipAnimation, skipLayout: skipLayout);
   }
 
   @override
@@ -70,9 +67,7 @@ class PieChart<D> extends BaseChart<D> {
 
       final details = renderer.getExpandedDatumDetails(seriesDatum);
 
-      if (details != null) {
-        entries.add(details);
-      }
+      entries.add(details);
     }
 
     return entries;

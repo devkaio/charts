@@ -15,22 +15,20 @@
 
 import 'dart:math' show Rectangle;
 
+import '../../data/tree.dart' show TreeNode;
 import '../common/base_chart.dart' show BaseChart;
 import '../common/datum_details.dart' show DatumDetails;
 import '../common/selection_model/selection_model.dart' show SelectionModelType;
 import '../common/series_renderer.dart' show rendererIdKey, SeriesRenderer;
 import '../layout/layout_config.dart' show LayoutConfig;
-import '../../data/tree.dart' show TreeNode;
 import 'sunburst_arc_renderer.dart' show SunburstArcRenderer;
 
 class SunburstChart<D> extends BaseChart<D> {
-  SunburstChart({LayoutConfig? layoutConfig})
-      : super(layoutConfig: layoutConfig);
+  SunburstChart({LayoutConfig? layoutConfig}) : super(layoutConfig: layoutConfig);
 
   @override
   SeriesRenderer<D> makeDefaultRenderer() {
-    return SunburstArcRenderer<D>()
-      ..rendererId = SeriesRenderer.defaultRendererId;
+    return SunburstArcRenderer<D>()..rendererId = SeriesRenderer.defaultRendererId;
   }
 
   /// Returns a list of datum details from selection model of [type].
@@ -44,12 +42,9 @@ class SunburstChart<D> extends BaseChart<D> {
 
       assert(renderer is SunburstArcRenderer<D>);
 
-      final details = (renderer as SunburstArcRenderer<D>)
-          .getExpandedDatumDetails(seriesDatum);
+      final details = (renderer as SunburstArcRenderer<D>).getExpandedDatumDetails(seriesDatum);
 
-      if (details != null) {
-        entries.add(details);
-      }
+      entries.add(details);
     }
 
     return entries;
